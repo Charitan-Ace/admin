@@ -1,4 +1,3 @@
-import React from "react";
 import { flexRender, Table as ReactTable } from "@tanstack/react-table";
 import {
   Table as DataTable,
