@@ -20,24 +20,28 @@ export default class AuthService extends BaseService {
       .setProtectedHeader({ alg: "RSA-OAEP-256", enc: "A256GCM" })
       .encrypt(await jose.importJWK(key, "RSA-OAEP-256"));
 
-    return await this.client.post("/api/auth/login", { body: jwe });
+    return await this.client.post("/api/auth/login", {
+      body: jwe,
+      credentials: "include",
+    });
   }
 
   /**
    * Registers an account optionally with profile data
    */
-  async register(email: string, password: string, profile?: unknown) {
+  async register(email: string, password: string) {
     const { key } = await this.encryptionKey();
 
     const jwe = await new jose.CompactEncrypt(
       // stringify JSON to create JWE claims
-      new TextEncoder().encode(JSON.stringify({ email, password, profile })),
+      new TextEncoder().encode(JSON.stringify({ email, password })),
     )
       .setProtectedHeader({ alg: "RSA-OAEP-256", enc: "A256GCM" })
       .encrypt(await jose.importJWK(key, "RSA-OAEP-256"));
 
     return await this.client.post("/api/auth/register", {
       body: jwe,
+      credentials: "include",
     });
   }
 
