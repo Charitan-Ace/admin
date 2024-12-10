@@ -36,7 +36,7 @@ export default class AuthService extends BaseService {
       .setProtectedHeader({ alg: "RSA-OAEP-256", enc: "A256GCM" })
       .encrypt(await jose.importJWK(key, "RSA-OAEP-256"));
 
-    return await this.client.post("/api/auth/validate/jwe", {
+    return await this.client.post("/api/auth/register", {
       body: jwe,
     });
   }
