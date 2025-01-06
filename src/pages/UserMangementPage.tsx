@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,17 +7,25 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import Table from "@/components/reusable/table/Table";
 import useTable from "@/components/reusable/table/hooks/useTable";
 import { ColumnDef } from "@tanstack/react-table";
+import { UserEditModal } from "./UserEditModal"; // Updated import path
 
-type User = {
+interface User {
   id: number;
   name: string;
   email: string;
   phone: string;
-};
+}
+
+interface UserDto {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+}
 
 async function fetchUsers(): Promise<User[]> {
   const response = await fetch("https://jsonplaceholder.typicode.com/users");
@@ -46,7 +52,7 @@ export default function AdminUsersPage() {
     },
     {
       accessorKey: "phone",
-      header: "phone",
+      header: "Phone",
     },
     {
       id: "actions",
@@ -118,56 +124,28 @@ export default function AdminUsersPage() {
         enablePagination={true}
       />
 
-      {/* Edit User Dialog */}
-      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-          </DialogHeader>
-          {selectedUser && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const updated: User = {
-                  ...selectedUser,
-                  name: formData.get("name") as string,
-                  email: formData.get("email") as string,
-                  phone: formData.get("phone") as string,
-                };
-                handleEditUser(updated);
-              }}
-            >
-              <div className="space-y-4 mt-4">
-                <Input
-                  name="name"
-                  defaultValue={selectedUser.name}
-                  placeholder="Name"
-                />
-                <Input
-                  name="email"
-                  defaultValue={selectedUser.email}
-                  placeholder="Email"
-                />
-                <Input
-                  name="phone"
-                  defaultValue={selectedUser.phone}
-                  placeholder="phone"
-                />
-              </div>
-              <DialogFooter className="mt-4 space-x-2">
-                <Button type="submit">Save</Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setEditModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-              </DialogFooter>
-            </form>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Edit Modal */}
+      {selectedUser && editModalOpen && (
+        <UserEditModal
+          user={{
+            id: selectedUser.id,
+            firstName: selectedUser.name.split(" ")[0] || "",
+            lastName: selectedUser.name.split(" ").slice(1).join(" ") || "",
+            email: selectedUser.email,
+            phone: selectedUser.phone || "",
+          }}
+          onClose={() => setEditModalOpen(false)}
+          onSave={(updatedUser: UserDto) => {
+            const newUser: User = {
+              id: selectedUser.id,
+              name: `${updatedUser.firstName} ${updatedUser.lastName}`,
+              email: updatedUser.email,
+              phone: updatedUser.phone || "",
+            };
+            handleEditUser(newUser);
+          }}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
