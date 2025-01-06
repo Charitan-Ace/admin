@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Table from "@/components/reusable/table/Table";
-import mockApiClient from "./services/ProjectsMockApi";
-import { Project } from "./types";
+import donorsApiClient from "./services/DonorsMockApi";
+import { Donor } from "./types";
 import useTable from "@/components/reusable/table/hooks/useTable";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-const projectColumns: ColumnDef<Project>[] = [
+const donorColumns: ColumnDef<Donor>[] = [
   {
     accessorKey: "id",
     header: ({ column }) => (
@@ -29,7 +29,7 @@ const projectColumns: ColumnDef<Project>[] = [
       </div>
     ),
     filterFn: (row, columnId, value) =>
-      (row.getValue(columnId) as Project).toString().includes(value),
+      (row.getValue(columnId) as Donor).toString().includes(value),
   },
   {
     accessorKey: "name",
@@ -72,13 +72,13 @@ const projectColumns: ColumnDef<Project>[] = [
         .includes(value.toLowerCase()),
   },
   {
-    accessorKey: "tags",
+    accessorKey: "donationAmount",
     header: ({ column }) => (
       <div>
-        <span>Tags</span>
+        <span>Donation Amount</span>
         <Input
           type="text"
-          placeholder="Filter by Tags"
+          placeholder="Filter by Amount"
           onChange={(e: React.FocusEvent<HTMLInputElement>) =>
             column.setFilterValue(e.target.value)
           }
@@ -86,12 +86,8 @@ const projectColumns: ColumnDef<Project>[] = [
         />
       </div>
     ),
-    cell: ({ getValue }) => (getValue() as string[]).join(", "),
     filterFn: (row, columnId, value) =>
-      (row.getValue(columnId) as string[])
-        .join(", ")
-        .toLowerCase()
-        .includes(value.toLowerCase()),
+      (row.getValue(columnId) as number).toString().includes(value),
   },
   {
     id: "actions",
@@ -113,16 +109,16 @@ const projectColumns: ColumnDef<Project>[] = [
   },
 ];
 
-const ProjectsTable = () => {
-  const { table, loading, refetch } = useTable<Project>({
-    apiCall: async () => mockApiClient.get("projects"),
-    columns: projectColumns,
+const DonorsTable = () => {
+  const { table, loading, refetch } = useTable<Donor>({
+    apiCall: async () => donorsApiClient.get("donors"),
+    columns: donorColumns,
     enablePagination: true,
   });
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Projects Table</h1>
+      <h1 className="text-xl font-bold mb-4">Donors Table</h1>
       <Table
         table={table}
         loading={loading}
@@ -133,4 +129,4 @@ const ProjectsTable = () => {
   );
 };
 
-export default ProjectsTable;
+export default DonorsTable;
