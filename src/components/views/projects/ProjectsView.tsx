@@ -1,10 +1,16 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Table from "@/components/reusable/table/Table";
-import { Button } from "@/components/ui/button";
 import mockApiClient from "./services/ProjectsMockApi";
 import { Project } from "./types";
 import useTable from "@/components/reusable/table/hooks/useTable";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 const projectColumns: ColumnDef<Project>[] = [
   {
@@ -87,6 +93,24 @@ const projectColumns: ColumnDef<Project>[] = [
         .toLowerCase()
         .includes(value.toLowerCase()),
   },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost">⋮</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => handleEdit(row.original)}>
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleDelete(row.original)}>
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  },
 ];
 
 const ProjectsTable = () => {
@@ -99,9 +123,6 @@ const ProjectsTable = () => {
   return (
     <div className="p-6">
       <h1 className="text-xl font-bold mb-4">Projects Table</h1>
-      <Button className="mb-4" onClick={refetch}>
-        Refresh Data
-      </Button>
       <Table
         table={table}
         loading={loading}
