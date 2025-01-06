@@ -1,6 +1,6 @@
 import * as jose from "jose";
-import APIClient from "../Client";
-import { BaseService } from "./BaseService";
+import APIClient from "@/lib/api/Client";
+import { BaseService } from "@/lib/api/services/BaseService";
 
 export default class AuthService extends BaseService {
   constructor(client: APIClient) {
