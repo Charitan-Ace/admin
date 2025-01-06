@@ -11,7 +11,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const authStatus = await apiClient.isAuthenticated();
-      console.log(authStatus);
       setIsAuthenticated(authStatus);
       setLoading(false);
     };

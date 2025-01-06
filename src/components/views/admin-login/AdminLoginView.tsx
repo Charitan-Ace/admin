@@ -28,8 +28,6 @@ const AdminLoginView = () => {
 
   const onSubmit = async (data: AdminLoginFormData) => {
     try {
-      // TODO: remove when api ready
-      localStorage.setItem("isAuthenticated", "true");
       // TODO: implement to navigate where came from
       navigate("/projects");
       const response = await apiClient.login(data.email, data.password);

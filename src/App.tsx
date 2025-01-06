@@ -11,7 +11,14 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/admin-login" element={<AdminLoginView />} />
-        <Route path="/" element={<MainView />}>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <MainView />
+            </ProtectedRoute>
+          }
+        >
           <Route
             path="projects"
             element={
