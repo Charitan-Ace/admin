@@ -14,6 +14,9 @@ const HeaderView = () => {
       </div>
 
       <nav className="flex items-center space-x-4">
+        <HeaderLink to="/projects" outlined>
+          Projects
+        </HeaderLink>
         <HeaderLink to="/charities" outlined>
           Charities
         </HeaderLink>
@@ -36,6 +39,11 @@ const HeaderView = () => {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="mt-3 space-y-1 p-1">
+            <DropdownMenuItem asChild>
+              <HeaderLink to="/projects" outlined>
+                Projects
+              </HeaderLink>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <HeaderLink to="/profile" outlined>
                 Profile
