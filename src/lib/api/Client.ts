@@ -48,4 +48,17 @@ export default class APIClient {
 
     return data as T;
   }
+
+  async login(email: string, password: string): Promise<void> {
+    await this.auth.login(email, password);
+  }
+
+  // TODO: fix this auth
+  async isAuthenticated(): Promise<boolean> {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return localStorage.getItem("isAuthenticated") === "true";
+  }
 }
+
+const apiClient = new APIClient();
+export { apiClient };
