@@ -9,6 +9,9 @@ export default class AuthService extends BaseService {
 
   /**
    * Authenticate an account with email and password
+   *
+   * @param email
+   * @param password
    */
   async login(email: string, password: string) {
     const key = await this.encryptionKey();
@@ -28,6 +31,11 @@ export default class AuthService extends BaseService {
 
   /**
    * Registers an account optionally with profile data
+   *
+   * @param email
+   * @param password
+   * @param role
+   * @param profile
    */
   async register(
     email: string,
@@ -59,9 +67,29 @@ export default class AuthService extends BaseService {
   }
 
   /**
+   * Request email verification
+   */
+  async request() {
+    return await this.client.post<boolean>("/api/auth/request", {
+      credentials: "include",
+    });
+  }
+
+  /**
+   * Send verification payload
+   *
+   * @param payload JWS-based payload as a string
+   */
+  async verify(payload: string) {
+    return await this.client.post<boolean>(
+      `/api/auth/verify?payload=${payload}`,
+    );
+  }
+
+  /**
    * Gets encryption public key and its algorithm
    */
-  async encryptionKey() {
+  private async encryptionKey() {
     return await this.client.get<jose.JWK>("/.well-known/jwk");
   }
 }
