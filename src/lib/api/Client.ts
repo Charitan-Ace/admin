@@ -60,5 +60,5 @@ export default class APIClient {
   }
 }
 
-const apiClient = new APIClient();
+const apiClient = new APIClient("http://localhost:8080");
 export { apiClient };

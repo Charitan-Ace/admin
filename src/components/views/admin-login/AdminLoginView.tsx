@@ -14,6 +14,7 @@ import { AdminLoginFormData } from "./interfaces";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { adminLoginSchema } from "./form-schemas/LoginFormSchema";
 import { useNavigate } from "react-router";
+import WebSocketComponent from "@/components/ui/WebSocketStreaming";
 
 const AdminLoginView = () => {
   const {
@@ -29,10 +30,10 @@ const AdminLoginView = () => {
   const onSubmit = async (data: AdminLoginFormData) => {
     try {
       // TODO: remove when api ready
-      localStorage.setItem("isAuthenticated", "true");
+      // localStorage.setItem("isAuthenticated", "true");
       // TODO: implement to navigate where came from
-      navigate("/projects");
       const response = await apiClient.login(data.email, data.password);
+      navigate("/projects");
       console.log("Login successful", response);
     } catch (error) {
       console.error("Login failed", error);
@@ -77,6 +78,8 @@ const AdminLoginView = () => {
           </Button>
         </form>
       </CardContent>
+
+      <WebSocketComponent />
     </Card>
   );
 };
