@@ -1,45 +1,33 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
-import ProjectsTable from "./components/views/projects/ProjectsView";
-import AdminLoginView from "./components/views/admin-login/AdminLoginView";
-import ProtectedRoute from "./lib/utils/components/protected-route/ProtectedRoute";
-import MainView from "./components/views/main-view/MainView";
-import DonorsTable from "./components/views/donors/DonorTable";
-import CharitiesTable from "./components/views/charities/CharitiesView";
+import "./App.css";
+import APIClient from "./lib/api/Client";
 
-const App = () => {
+function App() {
+  const client = new APIClient("http://localhost:8080");
+
+  async function register() {
+    await client.auth.register(
+      "khoanguyen.do@outlook.com",
+      "password",
+      "DONOR",
+      {},
+    );
+  }
+
+  async function login() {
+    await client.auth.login("khoanguyen.do@outlook.com", "password");
+  }
+
+  async function request() {
+    await client.auth.request();
+  }
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/admin-login" element={<AdminLoginView />} />
-        <Route path="/" element={<MainView />}>
-          <Route
-            path="projects"
-            element={
-              <ProtectedRoute>
-                <ProjectsTable />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="donors"
-            element={
-              <ProtectedRoute>
-                <DonorsTable />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="charities"
-            element={
-              <ProtectedRoute>
-                <CharitiesTable />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
-      </Routes>
-    </Router>
+    <div className="flex items-center justify-center">
+      <button onClick={register}>register</button>
+      <button onClick={login}>login</button>
+      <button onClick={request}>request</button>
+    </div>
   );
-};
+}
 
 export default App;
