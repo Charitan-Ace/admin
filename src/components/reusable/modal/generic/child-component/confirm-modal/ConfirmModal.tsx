@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/reusable/button/Button";
 import GenericModal from "../../GenericModal";
 import { ConfirmModalProps } from "./interfaces";
 

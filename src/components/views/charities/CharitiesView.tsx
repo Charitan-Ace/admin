@@ -10,9 +10,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/reusable/button/Button";
 import useModal from "@/components/reusable/modal/generic/hooks/useModal";
-import { GenericModal } from "@/components/reusable/modal/generic/GenericModal";
+import GenericModal from "@/components/reusable/modal/generic/GenericModal";
 
 const CharitiesTable = () => {
   const charityColumns: ColumnDef<Charity>[] = [

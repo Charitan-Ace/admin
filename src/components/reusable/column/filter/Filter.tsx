@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/reusable/button/Button";
 import { FilterIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ColumnFilterProps } from "./interfaces";
