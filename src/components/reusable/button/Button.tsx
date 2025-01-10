@@ -10,6 +10,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       variant,
       size,
+      textOrientation,
+      textPosition,
+      font,
       asChild = false,
       loading = false,
       children,
@@ -22,7 +25,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(
-          buttonVariants({ variant, size, className }),
+          buttonVariants({
+            variant,
+            size,
+            textOrientation,
+            textPosition,
+            font,
+            className,
+          }),
           loading && "cursor-not-allowed opacity-75",
         )}
         ref={ref}

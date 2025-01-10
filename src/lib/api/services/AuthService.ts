@@ -75,8 +75,20 @@ export default class AuthService extends BaseService {
     });
   }
 
+  async logout() {
+    return await this.client.get<boolean>("/api/auth/logout", {
+      credentials: "include",
+    });
+  }
+
+  async authenticated() {
+    return await this.client.get<boolean>("/api/auth/authenticated", {
+      credentials: "include",
+    });
+  }
+
   /**
-   * Send verification payload
+   * Send verification payload (for email verification)
    *
    * @param payload JWS-based payload as a string
    */

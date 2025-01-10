@@ -1,3 +1,4 @@
+import { API_URL } from "./config";
 import AuthService from "./services/AuthService";
 
 export default class APIClient {
@@ -49,10 +50,6 @@ export default class APIClient {
     return data as T;
   }
 
-  async login(email: string, password: string): Promise<void> {
-    await this.auth.login(email, password);
-  }
-
   // TODO: fix this auth
   async isAuthenticated(): Promise<boolean> {
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -60,5 +57,5 @@ export default class APIClient {
   }
 }
 
-const apiClient = new APIClient();
+const apiClient = new APIClient(API_URL);
 export { apiClient };
