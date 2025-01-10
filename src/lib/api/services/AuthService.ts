@@ -62,7 +62,6 @@ export default class AuthService extends BaseService {
 
     return await this.client.post("/api/auth/register", {
       body: jwe,
-      credentials: "include",
     });
   }
 
@@ -70,13 +69,19 @@ export default class AuthService extends BaseService {
    * Request email verification
    */
   async request() {
-    return await this.client.post<boolean>("/api/auth/request", {
-      credentials: "include",
-    });
+    return await this.client.post<boolean>("/api/auth/request");
+  }
+
+  async logout() {
+    return await this.client.get<boolean>("/api/auth/logout");
+  }
+
+  async authenticated() {
+    return await this.client.get<boolean>("/api/auth/authenticated");
   }
 
   /**
-   * Send verification payload
+   * Send verification payload (for email verification)
    *
    * @param payload JWS-based payload as a string
    */

@@ -1,3 +1,4 @@
+import { Button } from "@/components/reusable/button/Button";
 import HeaderLink from "./child-components/header-link/HeaderLink";
 import {
   DropdownMenu,
@@ -5,8 +6,20 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { apiClient } from "@/lib/api/Client";
+import { useNavigate } from "react-router";
 
 const HeaderView = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await apiClient.auth.logout();
+    } finally {
+      navigate("/admin-login");
+    }
+  };
+
   return (
     <header className="flex items-center justify-between bg-gray-100 px-6 py-2">
       <div className="flex items-center space-x-2">
@@ -40,24 +53,13 @@ const HeaderView = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="mt-3 space-y-1 p-1">
             <DropdownMenuItem asChild>
-              <HeaderLink to="/projects" outlined>
-                Projects
-              </HeaderLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <HeaderLink to="/profile" outlined>
-                Profile
-              </HeaderLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <HeaderLink to="/settings" outlined>
-                Settings
-              </HeaderLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <HeaderLink to="/logout" outlined className="mt-2">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleLogout}
+              >
                 Logout
-              </HeaderLink>
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

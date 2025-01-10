@@ -6,27 +6,31 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
-export const GenericModal = ({
+const GenericModal = ({
   title,
   isOpen,
   onClose,
+  bodyContent,
+  footerContent,
 }: {
   title: string;
   isOpen: boolean;
   onClose: () => void;
+  bodyContent: React.ReactNode;
+  footerContent: React.ReactNode;
 }) => (
   <Dialog open={isOpen} onOpenChange={onClose}>
     <DialogContent>
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
       </DialogHeader>
-      <DialogFooter>
-        <Button variant="outline" onClick={onClose}>
-          Close
-        </Button>
-      </DialogFooter>
+
+      <div>{bodyContent}</div>
+
+      <DialogFooter>{footerContent}</DialogFooter>
     </DialogContent>
   </Dialog>
 );
+
+export default GenericModal;

@@ -1,64 +1,102 @@
+import { API_URL } from "./config";
+import { ApiError } from "./error/ApiError";
 import AuthService from "./services/AuthService";
 
 export default class APIClient {
   baseURL: string;
-
   readonly auth: AuthService;
 
   constructor(baseURL = "/") {
     this.baseURL = baseURL;
-
-    // common services
     this.auth = new AuthService(this);
   }
 
-  // handle middleware/before-request here
-  async get<T>(path: string, options?: RequestInit) {
+  private handleError(response: Response) {
+    throw new ApiError(response.status);
+  }
+
+  private getRequestOptions(
+    options?: RequestInit,
+    withCredentials?: boolean,
+  ): RequestInit {
+    return {
+      ...options,
+      ...(withCredentials && { credentials: "include" }),
+    };
+  }
+
+  async get<T>(path: string, options?: RequestInit, withCredentials = true) {
     const url = new URL(path, this.baseURL);
+    const requestOptions = this.getRequestOptions(options, withCredentials);
 
     const response = await fetch(url, {
-      ...options,
+      ...requestOptions,
       method: "GET",
     });
 
-    // TODO: standardized error class
-    if (!response.ok || response.status >= 400) {
-      throw new Error("Client error occurred");
+    if (!response.ok) {
+      this.handleError(response);
     }
 
     const data = await response.json();
-
     return data as T;
   }
 
-  async post<T>(path: string, options?: RequestInit) {
+  async post<T>(path: string, options?: RequestInit, withCredentials = true) {
     const url = new URL(path, this.baseURL);
+    const requestOptions = this.getRequestOptions(options, withCredentials);
 
     const response = await fetch(url, {
-      ...options,
+      ...requestOptions,
       method: "POST",
     });
 
-    // TODO: standardized error class
-    if (!response.ok || response.status >= 400) {
-      throw new Error("Client error occurred");
+    if (!response.ok) {
+      this.handleError(response);
     }
 
     const data = await response.json();
-
     return data as T;
   }
 
-  async login(email: string, password: string): Promise<void> {
-    await this.auth.login(email, password);
+  async put<T>(path: string, options?: RequestInit, withCredentials = true) {
+    const url = new URL(path, this.baseURL);
+    const requestOptions = this.getRequestOptions(options, withCredentials);
+
+    const response = await fetch(url, {
+      ...requestOptions,
+      method: "PUT",
+    });
+
+    if (!response.ok) {
+      this.handleError(response);
+    }
+
+    const data = await response.json();
+    return data as T;
   }
 
-  // TODO: fix this auth
-  async isAuthenticated(): Promise<boolean> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return localStorage.getItem("isAuthenticated") === "true";
+  async delete<T>(
+    path: string,
+    options?: RequestInit,
+    withCredentials?: boolean,
+  ) {
+    const url = new URL(path, this.baseURL);
+    const requestOptions = this.getRequestOptions(options, withCredentials);
+
+    const response = await fetch(url, {
+      ...requestOptions,
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      this.handleError(response);
+    }
+
+    const data = await response.json();
+    return data as T;
   }
 }
 
-const apiClient = new APIClient();
+const apiClient = new APIClient(API_URL);
 export { apiClient };
