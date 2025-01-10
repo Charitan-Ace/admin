@@ -10,7 +10,14 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/admin-login" element={<AdminLoginView />} />
+        <Route
+          path="/admin-login"
+          element={
+            <div className="flex items-center justify-center h-screen w-full">
+              <AdminLoginView />
+            </div>
+          }
+        />
         <Route
           path="/"
           element={
