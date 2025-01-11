@@ -1,46 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  ColumnFiltersState,
   SortingState,
+  ColumnFiltersState,
   VisibilityState,
   PaginationState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { UseTableProps } from "./interfaces";
 
 export default function useTable<T>({
   data,
   columns,
-  enablePagination = true,
-  enableFiltering = true,
+  refetch,
+  onPaginationChange,
+  totalPages,
   pageIndex = 0,
   paginationSize = 10,
 }: UseTableProps<T>) {
+  // States for sorting, filtering, and pagination
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: pageIndex,
     pageSize: paginationSize,
   });
 
+  // Handle page changes and fetch data
+  useEffect(() => {
+    if (onPaginationChange) {
+      onPaginationChange({
+        pageNo: pagination.pageIndex,
+        pageSize: pagination.pageSize,
+      });
+    }
+    if (refetch) {
+      refetch();
+    }
+  }, [pagination.pageIndex, pagination.pageSize, refetch, totalPages]);
+
+  // Manage the table instance without pagination logic from react-table
   const table = useReactTable({
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: enablePagination
-      ? getPaginationRowModel()
-      : undefined,
     getSortedRowModel: getSortedRowModel(),
-    onPaginationChange: setPagination,
-    getFilteredRowModel: enableFiltering ? getFilteredRowModel() : undefined,
+    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -52,7 +64,51 @@ export default function useTable<T>({
     },
   });
 
+  const goToPage = (pageIndex: number) => {
+    setPagination((prev) => ({
+      ...prev,
+      pageIndex,
+    }));
+    if (onPaginationChange) {
+      onPaginationChange({
+        pageNo: pageIndex,
+        pageSize: pagination.pageSize,
+      });
+    }
+  };
+
+  const setPageSize = (pageSize: number) => {
+    setPagination((prev) => ({
+      ...prev,
+      pageSize,
+    }));
+    if (onPaginationChange) {
+      onPaginationChange({
+        pageNo: pagination.pageIndex,
+        pageSize,
+      });
+    }
+  };
+
+  const nextPage = () => {
+    setPagination((prev) => {
+      const nextPageIndex = Math.min(prev.pageIndex + 1, totalPages - 1);
+      return { ...prev, pageIndex: nextPageIndex };
+    });
+  };
+
+  const previousPage = () => {
+    setPagination((prev) => {
+      const prevPageIndex = Math.max(prev.pageIndex - 1, 0);
+      return { ...prev, pageIndex: prevPageIndex };
+    });
+  };
+
   return {
     table,
+    goToPage,
+    setPageSize,
+    nextPage,
+    previousPage,
   };
 }

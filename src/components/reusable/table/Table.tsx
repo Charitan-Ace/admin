@@ -18,8 +18,9 @@ import { ChevronDown, RefreshCw } from "lucide-react";
 
 interface DataTableProps<T> {
   table: ReactTable<T>;
-  enablePagination?: boolean;
+  manualPagination?: boolean;
   onSelectedRows?: () => void;
+  showSelectedRows?: boolean;
   loading?: boolean;
   refetch: () => Promise<void>;
 }
@@ -28,7 +29,7 @@ export default function Table<T>({
   table,
   refetch,
   onSelectedRows,
-  enablePagination = true,
+  showSelectedRows = true,
   loading = false,
 }: DataTableProps<T>) {
   return (
@@ -140,29 +141,11 @@ export default function Table<T>({
           </DataTable>
         )}
       </div>
-      {enablePagination && (
+      {showSelectedRows && (
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
-          <div className="space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
           </div>
         </div>
       )}
