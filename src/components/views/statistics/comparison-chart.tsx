@@ -1,5 +1,5 @@
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts'
+import { HeadlessChart } from '@/components/reusable/chart/HeadlessChart'
+import { useChart } from '@/components/reusable/chart/hooks/useChart'
 
 interface ComparisonChartProps {
   data: Array<{ name: string; [key: string]: number | string }>
@@ -23,31 +23,26 @@ export default function ComparisonChart({ data, category1, category2, region1, r
     },
   ]
 
+  const { chartType, seriesConfig, visibleSeries } = useChart({
+    data: chartData,
+    type: 'bar',
+    xAxis: 'name',
+    series: [
+      { key: category1, name: category1, color: "hsl(var(--chart-1))" },
+      { key: category2, name: category2, color: "hsl(var(--chart-2))" }
+    ]
+  });
+
   return (
-    <ChartContainer
-      config={{
-        [category1]: {
-          label: category1,
-          color: "hsl(var(--chart-1))",
-        },
-        [category2]: {
-          label: category2,
-          color: "hsl(var(--chart-2))",
-        },
-      }}
-      className="h-[400px]"
-    >
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <Legend />
-          <Bar dataKey={category1} fill="var(--color-category1)" />
-          <Bar dataKey={category2} fill="var(--color-category2)" />
-        </BarChart>
-      </ResponsiveContainer>
-    </ChartContainer>
+    <div className="min-h-[400px]">
+      <HeadlessChart
+        data={chartData}
+        type={chartType}
+        xAxisKey="name"
+        series={seriesConfig}
+        visibleSeries={visibleSeries}
+        className="min-h-[400px]"
+      />
+    </div>
   )
 }

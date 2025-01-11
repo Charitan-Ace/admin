@@ -19,6 +19,7 @@ export default function useTable<T>({
   totalPages,
   pageIndex = 0,
   paginationSize = 10,
+
 }: UseTableProps<T>) {
   // States for sorting, filtering, and pagination
   const [sorting, setSorting] = useState<SortingState>([]);

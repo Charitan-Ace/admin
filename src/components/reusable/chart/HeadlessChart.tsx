@@ -95,7 +95,7 @@ function HeadlessChart<T extends Record<string, any>>({
   };
 
   return (
-    <ResponsiveContainer className={className} width="100%" height={400}>
+    <ResponsiveContainer className={className} width="100%" height= "100%">
       {renderChart()}
     </ResponsiveContainer>
   );

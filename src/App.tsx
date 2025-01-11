@@ -6,6 +6,7 @@ import MainView from "./components/views/main-view/MainView";
 import DonorsTable from "./components/views/donors/DonorTable";
 import CharitiesTable from "./components/views/charities/CharitiesView";
 import StatisticsDashboard from "./components/views/statistics/StatisticsView";
+import UserDetailPage from "./components/views/donors-detail/UserDetails";
 
 const App = () => {
   return (
@@ -56,6 +57,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <StatisticsDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="donors/:id"
+            element={
+              <ProtectedRoute>
+                <UserDetailPage />
               </ProtectedRoute>
             }
           />

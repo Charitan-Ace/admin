@@ -157,14 +157,14 @@ export default function StatisticsDashboard() {
               <CardTitle>Project Statistics</CardTitle>
               <CardDescription>Active vs Completed Projects</CardDescription>
             </CardHeader>
-            <CardContent className="pt-2">
+            <CardContent className="pt-2 min-h-[400px]">
               <HeadlessChart
                 data={projectsChart.chartData}
                 type={projectsChart.chartType}
                 xAxisKey={projectsChart.xAxisKey}
                 series={projectsChart.seriesConfig}
                 visibleSeries={projectsChart.visibleSeries}
-                className="h-[300px]"
+                className="min-h-[400px]"
               />
             </CardContent>
           </Card>
@@ -175,7 +175,7 @@ export default function StatisticsDashboard() {
               <CardTitle>Donation Statistics</CardTitle>
               <CardDescription>Total donations by category</CardDescription>
             </CardHeader>
-            <CardContent className="pt-2">
+            <CardContent className="pt-2 min-h-[400px]">
               <HeadlessChart
                 data={donationsChart.chartData}
                 type={donationsChart.chartType}
@@ -183,7 +183,7 @@ export default function StatisticsDashboard() {
                 yAxisKey={donationsChart.yAxisKey}
                 series={donationsChart.seriesConfig}
                 visibleSeries={donationsChart.visibleSeries}
-                className="h-[300px]"
+                className="min-h-[400px]"
               />
             </CardContent>
           </Card>
@@ -194,15 +194,15 @@ export default function StatisticsDashboard() {
               <CardTitle>New Donor Registrations</CardTitle>
               <CardDescription>Number of new donors over time</CardDescription>
             </CardHeader>
-            <CardContent className="pt-2">
+            <CardContent className="pt-2 min-h-[400px]">
               <HeadlessChart
                 data={donorsChart.chartData}
                 type={donorsChart.chartType}
                 xAxisKey={donorsChart.xAxisKey}
-                yAxisKey="value"  // Add this line
+                yAxisKey="value"  
                 series={donorsChart.seriesConfig}
                 visibleSeries={donorsChart.visibleSeries}
-                className="h-[300px]"
+                className="min-h-[400px]"
               />
             </CardContent>
           </Card>
