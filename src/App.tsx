@@ -5,6 +5,7 @@ import ProtectedRoute from "./lib/utils/components/protected-route/ProtectedRout
 import MainView from "./components/views/main-view/MainView";
 import DonorsTable from "./components/views/donors/DonorTable";
 import CharitiesTable from "./components/views/charities/CharitiesView";
+import StatisticsDashboard from "@/components/views/statistics/StatisticView.tsx";
 
 const App = () => {
   return (
@@ -33,6 +34,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <CharitiesTable />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="statistics"
+            element={
+              <ProtectedRoute>
+                <StatisticsDashboard />
               </ProtectedRoute>
             }
           />
