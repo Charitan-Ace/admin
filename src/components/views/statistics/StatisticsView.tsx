@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import mockApiClient from './services/MockApi'
 import { MockData } from './services/types'

@@ -13,6 +13,9 @@ const FormInput = <T extends FieldValues>({
   disabled = false,
   vSpacing = 2,
   className = "",
+  accept,
+  multiple,
+  onChange,
 }: FormInputProps<T>) => (
   <div className={`space-y-${vSpacing} ${className}`}>
     <Label htmlFor={id}>{label}</Label>
@@ -21,6 +24,10 @@ const FormInput = <T extends FieldValues>({
       type={type}
       placeholder={placeholder}
       disabled={disabled}
+      accept={type === 'file' ? (accept || 'image/*,video/*') : undefined}
+      multiple={type === 'file' ? multiple : undefined}
+      className={type === 'file' ? 'file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold hover:file:bg-violet-100' : ''}
+      onChange={onChange}
       {...register(id)}
     />
     {error && <p className="text-red-500 text-sm">{error}</p>}

@@ -7,6 +7,7 @@ import DonorsTable from "./components/views/donors/DonorTable";
 import CharitiesTable from "./components/views/charities/CharitiesView";
 import StatisticsDashboard from "./components/views/statistics/StatisticsView";
 import UserDetailPage from "./components/views/donors-detail/UserDetails";
+import { CreateAccountForm } from "./components/views/create-account/CreateAccountForm";
 
 const App = () => {
   return (
@@ -56,7 +57,7 @@ const App = () => {
             path="statistics"
             element={
               <ProtectedRoute>
-                <StatisticsDashboard />
+                <CreateAccountForm />
               </ProtectedRoute>
             }
           />
@@ -67,7 +68,7 @@ const App = () => {
                 <UserDetailPage />
               </ProtectedRoute>
             }
-          />
+          /> 
         </Route>
       </Routes>
     </Router>
