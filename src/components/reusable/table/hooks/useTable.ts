@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ColumnFiltersState,
   SortingState,
@@ -13,38 +13,21 @@ import {
 import { UseTableProps } from "./interfaces";
 
 export default function useTable<T>({
-  apiCall,
+  data,
   columns,
   enablePagination = true,
   enableFiltering = true,
+  pageIndex = 0,
   paginationSize = 10,
 }: UseTableProps<T>) {
-  const [data, setData] = useState<T[]>([]);
-  const [loading, setLoading] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
+    pageIndex: pageIndex,
     pageSize: paginationSize,
   });
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const response = await apiCall();
-      setData(response);
-    } catch (error) {
-      console.error("Error fetching data: ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const table = useReactTable({
     data,
@@ -71,8 +54,5 @@ export default function useTable<T>({
 
   return {
     table,
-    data,
-    loading,
-    refetch: fetchData,
   };
 }

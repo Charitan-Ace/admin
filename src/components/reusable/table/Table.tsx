@@ -19,6 +19,7 @@ import { ChevronDown, RefreshCw } from "lucide-react";
 interface DataTableProps<T> {
   table: ReactTable<T>;
   enablePagination?: boolean;
+  onSelectedRows?: () => void;
   loading?: boolean;
   refetch: () => Promise<void>;
 }
@@ -26,6 +27,7 @@ interface DataTableProps<T> {
 export default function Table<T>({
   table,
   refetch,
+  onSelectedRows,
   enablePagination = true,
   loading = false,
 }: DataTableProps<T>) {
@@ -40,6 +42,17 @@ export default function Table<T>({
         >
           <RefreshCw />
         </Button>
+
+        <Button
+          variant="destructive"
+          size="sm"
+          className="ml-auto"
+          disabled={table.getSelectedRowModel().rows.length === 0}
+          onClick={onSelectedRows}
+        >
+          Delete
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
