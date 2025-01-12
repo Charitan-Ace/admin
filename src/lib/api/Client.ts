@@ -15,19 +15,28 @@ export default class APIClient {
     throw new ApiError(response.status);
   }
 
-  private getRequestOptions(
-    options?: RequestInit,
-    withCredentials?: boolean,
-  ): RequestInit {
+  private getRequestOptions(options?: RequestInit): RequestInit {
     return {
       ...options,
-      ...(withCredentials && { credentials: "include" }),
+      credentials: "include",
     };
   }
 
-  async get<T>(path: string, options?: RequestInit, withCredentials = true) {
+  async get<T>(
+    path: string,
+    options?: RequestInit & { params?: Record<string, unknown> },
+  ): Promise<T> {
     const url = new URL(path, this.baseURL);
-    const requestOptions = this.getRequestOptions(options, withCredentials);
+    const requestOptions = this.getRequestOptions(options);
+
+    // Add query parameters if provided
+    if (options?.params) {
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          url.searchParams.append(key, String(value));
+        }
+      });
+    }
 
     const response = await fetch(url, {
       ...requestOptions,
@@ -42,9 +51,9 @@ export default class APIClient {
     return data as T;
   }
 
-  async post<T>(path: string, options?: RequestInit, withCredentials = true) {
+  async post<T>(path: string, options?: RequestInit): Promise<T> {
     const url = new URL(path, this.baseURL);
-    const requestOptions = this.getRequestOptions(options, withCredentials);
+    const requestOptions = this.getRequestOptions(options);
 
     const response = await fetch(url, {
       ...requestOptions,
@@ -59,9 +68,9 @@ export default class APIClient {
     return data as T;
   }
 
-  async put<T>(path: string, options?: RequestInit, withCredentials = true) {
+  async put<T>(path: string, options?: RequestInit): Promise<T> {
     const url = new URL(path, this.baseURL);
-    const requestOptions = this.getRequestOptions(options, withCredentials);
+    const requestOptions = this.getRequestOptions(options);
 
     const response = await fetch(url, {
       ...requestOptions,
@@ -76,13 +85,9 @@ export default class APIClient {
     return data as T;
   }
 
-  async delete<T>(
-    path: string,
-    options?: RequestInit,
-    withCredentials?: boolean,
-  ) {
+  async delete<T>(path: string, options?: RequestInit): Promise<T> {
     const url = new URL(path, this.baseURL);
-    const requestOptions = this.getRequestOptions(options, withCredentials);
+    const requestOptions = this.getRequestOptions(options);
 
     const response = await fetch(url, {
       ...requestOptions,

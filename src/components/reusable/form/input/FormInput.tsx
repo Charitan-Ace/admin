@@ -5,13 +5,13 @@ import { FieldValues } from "react-hook-form";
 
 const FormInput = <T extends FieldValues>({
   id,
-  type,
   placeholder,
   label,
   error,
   register,
   disabled = false,
   vSpacing = 2,
+  type = "text",
   className = "",
 }: FormInputProps<T>) => (
   <div className={`space-y-${vSpacing} ${className}`}>

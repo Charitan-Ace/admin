@@ -16,11 +16,11 @@ export default function useTable<T>({
   columns,
   refetch,
   onPaginationChange,
+  filter,
   totalPages,
   pageIndex = 0,
   paginationSize = 10,
 }: UseTableProps<T>) {
-  // States for sorting, filtering, and pagination
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -31,7 +31,6 @@ export default function useTable<T>({
     pageSize: paginationSize,
   });
 
-  // Handle page changes and fetch data
   useEffect(() => {
     if (onPaginationChange) {
       onPaginationChange({
@@ -39,12 +38,19 @@ export default function useTable<T>({
         pageSize: pagination.pageSize,
       });
     }
+
     if (refetch) {
       refetch();
     }
-  }, [pagination.pageIndex, pagination.pageSize, refetch, totalPages]);
+  }, [
+    pagination.pageIndex,
+    pagination.pageSize,
+    filter?.order,
+    filter?.filter,
+    filter?.keyword,
+    refetch,
+  ]);
 
-  // Manage the table instance without pagination logic from react-table
   const table = useReactTable({
     data,
     columns,
