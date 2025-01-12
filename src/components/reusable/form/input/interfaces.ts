@@ -10,4 +10,7 @@ export interface FormInputProps<T extends FieldValues> {
   disabled?: boolean;
   vSpacing?: number;
   className?: string;
+  accept?: string; // For file input types
+  multiple?: boolean; // For multiple file selection
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }

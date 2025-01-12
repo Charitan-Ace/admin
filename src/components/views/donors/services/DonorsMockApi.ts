@@ -1,4 +1,4 @@
-import { MockData, Donor } from "./types";
+import { MockData, Donor } from "../types";
 
 class DonorsMockAPI {
   private mockData: MockData = {
@@ -50,6 +50,15 @@ class DonorsMockAPI {
       return data;
     }
     throw new Error(`Resource ${resource} not found`);
+  }
+
+  async getById(id: string) {
+    const donors = await this.get("donors");
+    const donor = donors.find((d: any) => d.id.toString() === id);
+    if (!donor) {
+      throw new Error(`Donor with id ${id} not found`);
+    }
+    return donor;
   }
 }
 
