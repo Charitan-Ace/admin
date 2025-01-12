@@ -5,13 +5,13 @@ import { FieldValues } from "react-hook-form";
 
 const FormInput = <T extends FieldValues>({
   id,
-  type,
   placeholder,
   label,
   error,
   register,
   disabled = false,
   vSpacing = 2,
+  type = "text",
   className = "",
   accept,
   multiple,
@@ -24,9 +24,13 @@ const FormInput = <T extends FieldValues>({
       type={type}
       placeholder={placeholder}
       disabled={disabled}
-      accept={type === 'file' ? (accept || 'image/*,video/*') : undefined}
-      multiple={type === 'file' ? multiple : undefined}
-      className={type === 'file' ? 'file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold hover:file:bg-violet-100' : ''}
+      accept={type === "file" ? accept || "image/*,video/*" : undefined}
+      multiple={type === "file" ? multiple : undefined}
+      className={
+        type === "file"
+          ? "file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold hover:file:bg-violet-100"
+          : ""
+      }
       onChange={onChange}
       {...register(id)}
     />

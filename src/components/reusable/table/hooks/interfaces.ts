@@ -1,4 +1,4 @@
-import { PaginationChangeCallback } from "@/lib/api/interfaces/table";
+import { FilterRequest, PagiableRequest } from "@/lib/api/interfaces/table";
 import { ColumnDef } from "@tanstack/react-table";
 
 export interface UseTableProps<T> {
@@ -9,5 +9,6 @@ export interface UseTableProps<T> {
   paginationSize: number;
   totalPages: number;
   refetch?: () => Promise<void>;
-  onPaginationChange?: (paginationParams: PaginationChangeCallback) => void;
+  onPaginationChange?: (paginationParams: PagiableRequest) => void;
+  filter?: FilterRequest;
 }

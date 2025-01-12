@@ -35,7 +35,7 @@ export function ColumnFilter({
   const isFiltered = value !== null && value !== "";
 
   return (
-    <div className="flex items-center justify-between p-2 border-b">
+    <div className="flex items-center justify-between">
       <span className="font-medium">{column}</span>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -48,9 +48,6 @@ export function ColumnFilter({
         </PopoverTrigger>
         <PopoverContent className="w-80" align="end">
           <div className="space-y-2">
-            <h4 className="font-medium leading-none">
-              Filter by {column.toLowerCase()}
-            </h4>
             {type === "text" && (
               <Input
                 placeholder={`Enter ${column.toLowerCase()}...`}

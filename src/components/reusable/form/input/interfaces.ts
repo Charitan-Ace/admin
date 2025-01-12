@@ -2,7 +2,7 @@ import { FieldValues, Path, UseFormRegister } from "react-hook-form";
 
 export interface FormInputProps<T extends FieldValues> {
   id: Path<T>;
-  type: string;
+  type?: string;
   placeholder?: string;
   label: string;
   error?: string;

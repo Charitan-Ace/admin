@@ -1,4 +1,3 @@
-import React from "react";
 import { Button } from "@/components/reusable/button/Button";
 import GenericModal from "../../GenericModal";
 import { DeleteModalProps } from "./interfaces";
@@ -18,9 +17,13 @@ const DeleteModal = ({
     onClose={onClose}
     bodyContent={<div>{message}</div>}
     footerContent={
-      <div>
-        <Button onClick={onClose}>{cancelText}</Button>
-        <Button onClick={onDelete}>{deleteText}</Button>
+      <div className="flex flex-row gap-x-2">
+        <Button variant="outline" onClick={onClose}>
+          {cancelText}
+        </Button>
+        <Button variant="destructive" onClick={onDelete}>
+          {deleteText}
+        </Button>
       </div>
     }
   />

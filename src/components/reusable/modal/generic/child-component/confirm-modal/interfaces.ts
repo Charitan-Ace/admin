@@ -1,4 +1,5 @@
 export interface ConfirmModalProps {
+  id: string | number | string[] | number[];
   title?: string;
   confirmText?: string;
   cancelText?: string;

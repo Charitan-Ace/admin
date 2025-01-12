@@ -13,15 +13,13 @@ export interface Pageable {
   unpaged: boolean;
 }
 
-export interface PagiableRequest<T> {
+export interface PagiableRequest {
   pageNo?: number;
   pageSize?: number;
-  order?: "ascending" | "descending";
-  filter?: keyof T;
-  keyword?: string;
 }
 
-export interface PaginationChangeCallback {
-  pageNo?: number;
-  pageSize?: number;
+export interface FilterRequest {
+  order?: "ascending" | "descending";
+  filter?: string;
+  keyword?: string;
 }
