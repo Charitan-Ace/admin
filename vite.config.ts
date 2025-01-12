@@ -10,4 +10,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: "0.0.0.0", // Bind the server to all network interfaces
+    port: 5173,      // Specify the port to match Docker's exposed port
+  },
+  preview: {
+    host: "0.0.0.0", // Ensure the preview server is accessible externally
+    port: 5173,      // Same port for consistency
+  },
 });
