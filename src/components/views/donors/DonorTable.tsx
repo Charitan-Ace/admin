@@ -20,7 +20,7 @@ import { ColumnFilterInputDropdown } from "@/components/reusable/column/filter/i
 import ColumnFilterPlaceholder from "@/components/reusable/column/filter/placeholder/ColumnFilterPlaceholder";
 import ColumnSortFilter from "@/components/reusable/column/filter/sort/SortFilter";
 
-const CharitiesTable = () => {
+const DonorTable = () => {
   const { data, isLoading, paginationData, filterData, totalPages } =
     useStore(donorStore);
 
@@ -38,7 +38,7 @@ const CharitiesTable = () => {
     });
   };
 
-  const charityColumns: ColumnDef<Donor>[] = [
+  const donorColumns: ColumnDef<Donor>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -157,7 +157,7 @@ const CharitiesTable = () => {
       totalPages: totalPages ?? 0,
       pageIndex: paginationData?.pageNumber ?? 0,
       paginationSize: paginationData?.pageSize ?? 10,
-      columns: charityColumns,
+      columns: donorColumns,
       enablePagination: true,
       filter: { ...filterData },
       onPaginationChange: updatePaginationParams,
@@ -202,4 +202,4 @@ const CharitiesTable = () => {
   );
 };
 
-export default CharitiesTable;
+export default DonorTable;
