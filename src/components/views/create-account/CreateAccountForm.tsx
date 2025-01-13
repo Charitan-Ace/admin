@@ -8,7 +8,7 @@ import { createAccountSchema } from "@/components/views/create-account/schemas/c
 import { CreateAccountFormFields } from "./types/interfaces";
 import FormInput from "@/components/reusable/form/input/FormInput";
 import GenericModal from "@/components/reusable/modal/generic/GenericModal";
-import { donorsAPI } from "../donors/services/donorsAPI";
+import { donorsAPI } from "../donors/services/DonorsAPI.ts";
 
 // const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = [

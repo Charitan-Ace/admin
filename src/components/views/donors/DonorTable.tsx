@@ -2,7 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import Table from "@/components/reusable/table/Table";
 import useTable from "@/components/reusable/table/hooks/useTable";
 import { useStore } from "zustand";
-import { DonorsAPI } from "./services/DonorsAPI";
+import { DonorsAPI } from "./services/DonorsAPI.ts";
 import donorStore from "./store/createDonorStore";
 import { Donor } from "./services/interfaces";
 import { Checkbox } from "@/components/ui/checkbox";
