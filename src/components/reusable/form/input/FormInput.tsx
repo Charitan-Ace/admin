@@ -28,7 +28,7 @@ const FormInput = <T extends FieldValues>({
       multiple={type === "file" ? multiple : undefined}
       className={
         type === "file"
-          ? "file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold hover:file:bg-violet-100"
+          ? "file:mr-4 file:mt-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold hover:file:bg-violet-100"
           : ""
       }
       onChange={onChange}
