@@ -5,9 +5,10 @@ import ProtectedRoute from "./lib/utils/components/protected-route/ProtectedRout
 import MainView from "./components/views/main-view/MainView";
 import DonorsTable from "./components/views/donors/DonorTable";
 import CharitiesTable from "./components/views/charities/CharitiesView";
-import StatisticsDashboard from "./components/views/statistics/StatisticsView";
+// import StatisticsDashboard from "./components/views/statistics/StatisticsView";
 import UserDetailPage from "./components/views/donors-detail/UserDetails";
-import { CreateAccountForm } from "./components/views/create-account/CreateAccountForm";
+// import { CreateAccountForm } from "./components/views/create-account/CreateAccountForm";
+import CreateAccountView from "./components/views/create-account/CreateAccountView";
 
 const App = () => {
   return (
@@ -57,7 +58,7 @@ const App = () => {
             path="statistics"
             element={
               <ProtectedRoute>
-                <CreateAccountForm />
+                <CreateAccountView />
               </ProtectedRoute>
             }
           />
@@ -68,7 +69,7 @@ const App = () => {
                 <UserDetailPage />
               </ProtectedRoute>
             }
-          /> 
+          />
         </Route>
       </Routes>
     </Router>

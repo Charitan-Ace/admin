@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { CreateAccountForm } from "./CreateAccountModal";
-import { Card } from "@/components/ui/card";
+import { CreateAccountForm } from "./CreateAccountForm";
+// import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const CreateAccountView = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleCreateAccount = async (success: boolean, message: string) => {
+  const handleCreateAccount = async (success: boolean) => {
     if (success) {
       console.log("Account created successfully");
       setIsModalOpen(false);
@@ -19,11 +19,9 @@ const CreateAccountView = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <Button onClick={() => setIsModalOpen(true)}>
-        Create New Account
-      </Button>
+      <Button onClick={() => setIsModalOpen(true)}>Create New Account</Button>
 
-      <CreateAccountForm 
+      <CreateAccountForm
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmitStatus={handleCreateAccount}

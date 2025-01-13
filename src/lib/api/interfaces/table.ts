@@ -23,3 +23,17 @@ export interface FilterRequest {
   filter?: string;
   keyword?: string;
 }
+
+export interface PageableGetResponse<T> {
+  content: T[];
+  pageable: Pageable;
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  size: number;
+  number: number;
+  sort: Sort;
+  numberOfElements: number;
+  empty: boolean;
+}
