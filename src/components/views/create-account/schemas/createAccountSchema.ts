@@ -1,42 +1,35 @@
 import * as yup from 'yup';
-import { CreateAccountFormFields } from '../types/interfaces';
+// import { CreateAccountFormFields } from '../types/interfaces';
 
 const MAX_FILE_SIZE = 5000000; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg"];
 
-export const createAccountSchema: yup.ObjectSchema<CreateAccountFormFields> = yup.object().shape({
+export const createAccountSchema = yup.object().shape({
   email: yup
     .string()
     .email('Invalid email address')
     .required('Email is required'),
+  password: yup
+    .string()
+    .required('Password is required')
+    .min(8, 'Password must be at least 8 characters long'),
   firstName: yup
     .string()
     .when('userType', {
-      is: 'person',
+      is: 'donor',
       then: (schema) => schema.required('First name is required'),
       otherwise: (schema) => schema.nullable()
     }),
   lastName: yup
     .string()
     .when('userType', {
-      is: 'person',
+      is: 'donor',
       then: (schema) => schema.required('Last name is required'),
-      otherwise: (schema) => schema.nullable()
-    }),
-  organizationName: yup
-    .string()
-    .when('userType', {
-      is: (val: string) => val === 'company' || val === 'non-profit',
-      then: (schema) => schema.required('Organization name is required'),
       otherwise: (schema) => schema.nullable()
     }),
   address: yup.string().nullable(),
   assetsKey: yup.string().nullable(),
-  userType: yup
-    .string()
-    .oneOf(['person', 'company', 'non-profit'], 'Please select a valid user type')
-    .required('Please select a user type'),
   image: yup
     .mixed()
     .required('Image is required')

@@ -1,5 +1,4 @@
 export interface SortFilterProps {
-  columnName: string;
-  sortOrder: "ascending" | "descending" | "default";
-  onChange: (order: "ascending" | "descending" | "default") => void;
+  sortOrder: "ascending" | "descending" | "unsorted";
+  onChange: (order: "ascending" | "descending" | "unsorted") => void;
 }

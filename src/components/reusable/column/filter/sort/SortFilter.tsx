@@ -1,34 +1,38 @@
 import { Button } from "@/components/reusable/button/Button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUp, ArrowDown, MoreHorizontal } from "lucide-react"; // Add an icon for unsorted
 import { SortFilterProps } from "./interfaces";
 
-const ColumnSortFilter = ({
-  columnName,
-  sortOrder,
-  onChange,
-}: SortFilterProps) => {
+const ColumnSortFilter = ({ sortOrder, onChange }: SortFilterProps) => {
   const handleSortChange = () => {
-    if (sortOrder === "default") {
+    if (sortOrder === "descending") {
       onChange("ascending");
     } else if (sortOrder === "ascending") {
       onChange("descending");
     } else {
-      onChange("default");
+      onChange("ascending");
+    }
+  };
+
+  const renderSortIcon = () => {
+    switch (sortOrder) {
+      case "ascending":
+        return <ArrowUp />;
+      case "descending":
+        return <ArrowDown />;
+      default:
+        return <MoreHorizontal />;
     }
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <span className="font-medium">{columnName}</span>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleSortChange}
-        className="h-8 w-8 p-0"
-      >
-        <ArrowUpDown />
-      </Button>
-    </div>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={handleSortChange}
+      className="h-8 w-8 p-0"
+    >
+      {renderSortIcon()}
+    </Button>
   );
 };
 

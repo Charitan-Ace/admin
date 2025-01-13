@@ -4,9 +4,9 @@ import useTable from "@/components/reusable/table/hooks/useTable";
 import { useStore } from "zustand";
 import { CharitiesAPI } from "./services/CharitiesAPI";
 import charityStore from "./store/createCharityStore";
-import { Charity } from "./services/interfaces";
+import { Charity, OrganizationType } from "./services/interfaces";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ColumnFilter } from "@/components/reusable/column/filter/Filter";
+// import { ColumnFilter } from "@/components/reusable/column/filter/Filter";
 import DefaultColumnHeader from "@/components/reusable/column/header/Header";
 import { FilterRequest, PagiableRequest } from "@/lib/api/interfaces/table";
 import PaginationControls from "@/components/reusable/table/pagination/Pagination";
@@ -20,6 +20,9 @@ import CreateCharityFormModal from "./child-components/CreateCharityModal/Create
 import { CreateCharityFormData } from "./child-components/CreateCharityModal/interfaces";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ColumnFilterInputDropdown from "@/components/reusable/column/filter/input/ColumnFilterInput";
+import ColumnFilterPlaceholder from "@/components/reusable/column/filter/placeholder/ColumnFilterPlaceholder";
+import ColumnFilterSelect from "@/components/reusable/column/filter/select/ColumnFilterSelect";
 
 const CharitiesTable = () => {
   const { data, isLoading, paginationData, filterData, totalPages } =
@@ -28,17 +31,14 @@ const CharitiesTable = () => {
   const updatePaginationParams = (paginationParams: PagiableRequest) => {
     charityStore.getState().setFilterData({
       ...filterData,
-      pageNo: paginationParams.pageNo,
-      pageSize: paginationParams.pageSize,
+      ...paginationParams,
     });
   };
 
   const updateFilterParams = (filterParams: FilterRequest) => {
     charityStore.getState().setFilterData({
       ...filterData,
-      order: filterParams.order,
-      filter: filterParams.filter,
-      keyword: filterParams.keyword,
+      ...filterParams,
     });
   };
 
@@ -72,17 +72,39 @@ const CharitiesTable = () => {
       id: "companyName",
       accessorKey: "companyName",
       header: () => (
-        <ColumnSortFilter
-          columnName="Company Name"
-          sortOrder={
-            filterData?.order === undefined ? "default" : filterData.order
+        <ColumnFilterPlaceholder
+          column="Company Name"
+          filterContent={
+            <div className="flex flex-row gap-x-2">
+              <ColumnSortFilter
+                sortOrder={
+                  filterData?.filter === "companyName"
+                    ? (filterData?.order ?? "ascending")
+                    : "ascending"
+                }
+                onChange={(order) => {
+                  updateFilterParams({
+                    filter: "companyName",
+                    order: order === "unsorted" ? undefined : order,
+                  });
+                }}
+              />
+              <ColumnFilterInputDropdown
+                column="Last Name"
+                value={
+                  filterData?.filter === "companyName"
+                    ? (filterData?.keyword ?? "")
+                    : ""
+                }
+                onChange={(value) => {
+                  updateFilterParams({
+                    filter: "companyName",
+                    keyword: value,
+                  });
+                }}
+              />
+            </div>
           }
-          onChange={(order) => {
-            updateFilterParams({
-              filter: "companyName",
-              order: order !== "default" ? order : undefined,
-            });
-          }}
         />
       ),
     },
@@ -90,23 +112,31 @@ const CharitiesTable = () => {
       id: "address",
       accessorKey: "address",
       header: () => <DefaultColumnHeader title="Address" />,
+      enableSorting: true,
     },
     {
       id: "organizationType",
       accessorKey: "organizationType",
       header: () => (
-        <ColumnFilter
-          type="select"
-          column="Organisation Type"
-          value={filterData?.keyword}
-          options={["COMPANY", "NON_PROFIT", "INDIVIDUAL"]}
-          onChange={(type) => {
-            updateFilterParams({
-              filter: type === null ? undefined : type,
-              order: undefined,
-              keyword: type === null ? undefined : type,
-            });
-          }}
+        <ColumnFilterPlaceholder
+          column="Organization Type"
+          filterContent={
+            <ColumnFilterSelect
+              column="Organization Type"
+              value={
+                filterData?.filter === "organizationType"
+                  ? (filterData?.keyword ?? null)
+                  : null
+              }
+              options={Object.values(OrganizationType)}
+              onValueChange={(value) => {
+                updateFilterParams({
+                  filter: value === null ? undefined : value.toLowerCase(),
+                  keyword: value ?? undefined,
+                });
+              }}
+            />
+          }
         />
       ),
     },
@@ -151,7 +181,7 @@ const CharitiesTable = () => {
       paginationSize: paginationData?.pageSize ?? 10,
       columns: charityColumns,
       enablePagination: true,
-      filter: { order: filterData?.order, filter: filterData?.filter },
+      filter: { ...filterData },
       onPaginationChange: updatePaginationParams,
       refetch: CharitiesAPI.fetchAllCharities,
     });

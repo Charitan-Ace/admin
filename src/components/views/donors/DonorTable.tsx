@@ -1,171 +1,205 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Table from "@/components/reusable/table/Table";
-import donorsApiClient from "./services/DonorsMockApi";
-import { Donor } from "./types";
 import useTable from "@/components/reusable/table/hooks/useTable";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useStore } from "zustand";
+import { DonorsAPI } from "./services/DonorsAPI";
+import donorStore from "./store/createDonorStore";
+import { Donor } from "./services/interfaces";
+import { Checkbox } from "@/components/ui/checkbox";
+import DefaultColumnHeader from "@/components/reusable/column/header/Header";
+import { FilterRequest, PagiableRequest } from "@/lib/api/interfaces/table";
+import PaginationControls from "@/components/reusable/table/pagination/Pagination";
+// import ActionsMenu from "@/components/reusable/column/actions/Actions";
 import { Button } from "@/components/reusable/button/Button";
-import { useState, useEffect } from 'react';
-import { useNavigate } from "react-router";
+// import useModal from "@/components/reusable/modal/generic/hooks/useModal";
+// import DeleteModal from "@/components/reusable/modal/generic/child-component/delete-modal/DeleteModal";
+// import { BookImage } from "lucide-react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ColumnFilterInputDropdown } from "@/components/reusable/column/filter/input/ColumnFilterInput";
+import ColumnFilterPlaceholder from "@/components/reusable/column/filter/placeholder/ColumnFilterPlaceholder";
+import ColumnSortFilter from "@/components/reusable/column/filter/sort/SortFilter";
 
-const DonorsTable = () => {
-  const navigate = useNavigate();
-  
-  const handleEdit = (donor: Donor) => {
-    navigate(`/donors/${donor.id}`);
+const CharitiesTable = () => {
+  const { data, isLoading, paginationData, filterData, totalPages } =
+    useStore(donorStore);
+
+  const updatePaginationParams = (paginationParams: PagiableRequest) => {
+    donorStore.getState().setFilterData({
+      ...filterData,
+      ...paginationParams,
+    });
   };
 
-  const donorColumns: ColumnDef<Donor>[] = [
+  const updateFilterParams = (filterParams: FilterRequest) => {
+    donorStore.getState().setFilterData({
+      ...filterData,
+      ...filterParams,
+    });
+  };
+
+  const charityColumns: ColumnDef<Donor>[] = [
     {
-      accessorKey: "id",
-      header: ({ column }) => (
-        <div>
-          <span>ID</span>
-          <Input
-            type="text"
-            placeholder="Filter by ID"
-            onChange={(e: React.FocusEvent<HTMLInputElement>) =>
-              column.setFilterValue(e.target.value)
-            }
-            className="my-2"
-          />
-        </div>
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+          className="whitespace-nowrap"
+        />
       ),
-      filterFn: (row, columnId, value) =>
-        (row.getValue(columnId) as Donor).toString().includes(value),
-    },
-    {
-      accessorKey: "name",
-      header: ({ column }) => (
-        <div>
-          <span>Name</span>
-          <Input
-            type="text"
-            placeholder="Filter by Name"
-            onChange={(e: React.FocusEvent<HTMLInputElement>) =>
-              column.setFilterValue(e.target.value)
-            }
-            className="my-2"
-          />
-        </div>
-      ),
-      filterFn: (row, columnId, value) =>
-        (row.getValue(columnId) as string)
-          .toLowerCase()
-          .includes(value.toLowerCase()),
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => (
-        <div>
-          <span>Status</span>
-          <Input
-            type="text"
-            placeholder="Filter by Status"
-            onChange={(e: React.FocusEvent<HTMLInputElement>) =>
-              column.setFilterValue(e.target.value)
-            }
-            className="my-2"
-          />
-        </div>
-      ),
-      filterFn: (row, columnId, value) =>
-        (row.getValue(columnId) as string)
-          .toLowerCase()
-          .includes(value.toLowerCase()),
-    },
-    {
-      accessorKey: "donationAmount",
-      header: ({ column }) => (
-        <div>
-          <span>Donation Amount</span>
-          <Input
-            type="text"
-            placeholder="Filter by Amount"
-            onChange={(e: React.FocusEvent<HTMLInputElement>) =>
-              column.setFilterValue(e.target.value)
-            }
-            className="my-2"
-          />
-        </div>
-      ),
-      filterFn: (row, columnId, value) =>
-        (row.getValue(columnId) as number).toString().includes(value),
-    },
-    {
-      id: "actions",
       cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost">⋮</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleEdit(row.original)}>
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(row.original)}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+          className="whitespace-nowrap"
+        />
       ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 20,
+    },
+    {
+      id: "firstName",
+      accessorKey: "firstName",
+      header: () => (
+        <ColumnFilterPlaceholder
+          column="First name"
+          filterContent={
+            <div className="flex flex-row gap-x-2">
+              <ColumnSortFilter
+                sortOrder={
+                  filterData?.filter === "firstName"
+                    ? (filterData?.order ?? "ascending")
+                    : "unsorted"
+                }
+                onChange={(order) => {
+                  updateFilterParams({
+                    filter: "firstName",
+                    order: order === "unsorted" ? undefined : order,
+                  });
+                }}
+              />
+              <ColumnFilterInputDropdown
+                column="First Name"
+                value={
+                  filterData?.filter === "firstName"
+                    ? (filterData?.keyword ?? "")
+                    : ""
+                }
+                onChange={(value) => {
+                  updateFilterParams({
+                    filter: "firstName",
+                    keyword: value,
+                  });
+                }}
+              />
+            </div>
+          }
+        />
+      ),
+    },
+    {
+      id: "lastName",
+      accessorKey: "lastName",
+      header: () => (
+        <ColumnFilterPlaceholder
+          column="Last Name"
+          filterContent={
+            <div className="flex flex-row gap-x-2">
+              <ColumnSortFilter
+                sortOrder={
+                  filterData?.filter === "lastName"
+                    ? (filterData?.order ?? "unsorted")
+                    : "unsorted"
+                }
+                onChange={(order) => {
+                  updateFilterParams({
+                    filter: "lastName",
+                    order: order === "unsorted" ? undefined : order,
+                  });
+                }}
+              />
+              <ColumnFilterInputDropdown
+                column="Last Name"
+                value={
+                  filterData?.filter === "lastName"
+                    ? (filterData?.keyword ?? "")
+                    : ""
+                }
+                onChange={(value) => {
+                  updateFilterParams({
+                    filter: "lastName",
+                    keyword: value,
+                  });
+                }}
+              />
+            </div>
+          }
+        />
+      ),
+    },
+    {
+      id: "address",
+      accessorKey: "address",
+      header: () => <DefaultColumnHeader title="Address" />,
     },
   ];
 
-  const [data, setData] = useState<Donor[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  const fetchData = async (pageNo: number, pageSize: number) => {
-    try {
-      setLoading(true);
-      const response = await donorsApiClient.get("donors");
-      console.log('Donors data:', response);
-      setData(response);
-      setTotalPages(Math.ceil(response.length / pageSize));
-    } catch (error) {
-      console.error('Error fetching donors:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Initial fetch only
-  useEffect(() => {
-    fetchData(0, 10);
-  }, []); // Empty dependency array for initial load only
-
-  const { table } = useTable<Donor>({
-    data,
-    columns: donorColumns,
-    pageIndex,
-    paginationSize: 10,
-    totalPages,
-    onPaginationChange: ({ pageNo, pageSize }) => {
-      if (pageNo !== pageIndex) { // Only fetch if page actually changed
-        setPageIndex(pageNo);
-        fetchData(pageNo, pageSize);
-      }
-    },
-  });
+  const { table, goToPage, setPageSize, nextPage, previousPage } =
+    useTable<Donor>({
+      data: data ?? [],
+      totalPages: totalPages ?? 0,
+      pageIndex: paginationData?.pageNumber ?? 0,
+      paginationSize: paginationData?.pageSize ?? 10,
+      columns: charityColumns,
+      enablePagination: true,
+      filter: { ...filterData },
+      onPaginationChange: updatePaginationParams,
+      refetch: DonorsAPI.fetchAllDonors,
+    });
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Donors Table</h1>
-      <Table
-        table={table}
-        loading={loading}
-        enablePagination={true}
-      />
+    <div className="p-6 flex flex-col h-full justify-between">
+      <div>
+        <div className="flex flex-row justify-between">
+          <h1 className="text-xl font-bold mb-4">Donors Table</h1>
+          <Button
+            variant="outline"
+            onClick={() =>
+              openCreateCharityModal(undefined, "Register New Donor")
+            }
+          >
+            Register New Donor
+          </Button>
+        </div>
+        <Table
+          table={table}
+          loading={isLoading}
+          refetch={DonorsAPI.fetchAllDonors}
+          // onSelectedRowsDelete={() => console.log('hi')}
+        />
+      </div>
+      <div className="mt-auto">
+        <PaginationControls
+          pageNo={paginationData?.pageNumber ?? 0}
+          pageSize={paginationData?.pageSize ?? 0}
+          totalPages={totalPages ?? 0}
+          goToPage={goToPage}
+          changePageSize={setPageSize}
+          nextPage={nextPage}
+          previousPage={previousPage}
+        />
+      </div>
+
+      <ToastContainer />
     </div>
   );
 };
 
-export default DonorsTable;
+export default CharitiesTable;

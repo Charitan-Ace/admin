@@ -1,14 +1,11 @@
-
-export type UserType = 'person' | 'company' | 'non-profit';
+export type UserType = 'donor' | 'company' | 'non-profit';
 
 export interface CreateAccountFormFields {
   email: string;
+  password: string;
   firstName?: string;
   lastName?: string;
-  organizationName?: string;
   address?: string;
-  assetsKey?: string;
-  userType: UserType;
   image: FileList;
   video?: FileList;
 }

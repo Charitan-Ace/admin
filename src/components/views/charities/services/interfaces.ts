@@ -1,4 +1,4 @@
-import { Pageable, Sort } from "@/lib/api/interfaces/table";
+import { PageableGetResponse } from "@/lib/api/interfaces/table";
 
 export enum OrganizationType {
   COMPANY = "COMPANY",
@@ -16,16 +16,4 @@ export interface Charity {
   assetsKey: string;
 }
 
-export interface CharityGetResponse {
-  content: Charity[];
-  pageable: Pageable;
-  last: boolean;
-  totalElements: number;
-  totalPages: number;
-  first: boolean;
-  size: number;
-  number: number;
-  sort: Sort;
-  numberOfElements: number;
-  empty: boolean;
-}
+export type CharityGetResponse = PageableGetResponse<Charity>;
