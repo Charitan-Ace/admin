@@ -9,20 +9,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import DefaultColumnHeader from "@/components/reusable/column/header/Header";
 import { FilterRequest, PagiableRequest } from "@/lib/api/interfaces/table";
 import PaginationControls from "@/components/reusable/table/pagination/Pagination";
-// import ActionsMenu from "@/components/reusable/column/actions/Actions";
 import { Button } from "@/components/reusable/button/Button";
-// import useModal from "@/components/reusable/modal/generic/hooks/useModal";
-// import DeleteModal from "@/components/reusable/modal/generic/child-component/delete-modal/DeleteModal";
-// import { BookImage } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ColumnFilterInputDropdown } from "@/components/reusable/column/filter/input/ColumnFilterInput";
 import ColumnFilterPlaceholder from "@/components/reusable/column/filter/placeholder/ColumnFilterPlaceholder";
 import ColumnSortFilter from "@/components/reusable/column/filter/sort/SortFilter";
+import { useState } from "react";
+import { BookImage } from "lucide-react";
+import useModal from "@/components/reusable/modal/generic/hooks/useModal";
+import { CreateAccountForm } from "@/components/views/create-account/CreateAccountForm";
+import { toast } from "react-toastify";
+import { CreateAccountFormFields } from "@/components/views/create-account/types/interfaces";
+import { CreateAccountFormData } from "../create-account/schemas/createAccountSchema";
+import { useNavigate } from "react-router";
 
-const CharitiesTable = () => {
+const DonorsTable = () => {
+  const [loading, setLoading] = useState(false);
   const { data, isLoading, paginationData, filterData, totalPages } =
     useStore(donorStore);
+  const navigate = useNavigate();
 
   const updatePaginationParams = (paginationParams: PagiableRequest) => {
     donorStore.getState().setFilterData({
@@ -37,6 +43,40 @@ const CharitiesTable = () => {
       ...filterParams,
     });
   };
+
+  const handleCreateAccount = async (data: CreateAccountFormData) => {
+    try {
+      setLoading(true);
+      await DonorsAPI.createAccount({
+        email: data.email,
+        password: data.password,
+        profile: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          address: data.address ?? undefined,
+        },
+
+      });
+
+      toast.success("Account created successfully!", {
+        position: "bottom-right",
+      });
+      DonorsAPI.fetchAllDonors();
+    } catch (error) {
+      toast.error(`Failed to create account: ${error}`, {
+        position: "bottom-right",
+      });
+    } finally {
+      setLoading(false);
+      closeCreateAccountModal();
+    }
+  };
+
+  const {
+    isOpen: isCreateAccountModalOpen,
+    openModal: openCreateAccountModal,
+    closeModal: closeCreateAccountModal,
+  } = useModal(false);
 
   const charityColumns: ColumnDef<Donor>[] = [
     {
@@ -149,6 +189,36 @@ const CharitiesTable = () => {
       accessorKey: "address",
       header: () => <DefaultColumnHeader title="Address" />,
     },
+    {
+      id: "actions",
+      // cell: ({ row }) => {
+      //   const menuItems = [
+      //     {
+      //       handlerName: "Edit",
+      //       handler: () => openCUModal(row.original.userId, `Edit ${row.original.companyName} charity`),
+      //     },
+      //     {
+      //       handlerName: "Delete",
+      //       handler: handleCharitiesDelete,
+      //     },
+      //   ];
+
+      //   return (
+      //     <ActionsMenu rowId={row.original.userId} actionItems={menuItems} />
+      //   );
+      // },
+      cell: ({ row }) => (
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={() => navigate(`/donor/${row.original.userId}`)}
+        >
+          <BookImage />
+        </Button>
+      ),
+      enableHiding: false,
+      size: 20,
+    },
   ];
 
   const { table, goToPage, setPageSize, nextPage, previousPage } =
@@ -171,9 +241,7 @@ const CharitiesTable = () => {
           <h1 className="text-xl font-bold mb-4">Donors Table</h1>
           <Button
             variant="outline"
-            onClick={() =>
-              openCreateCharityModal(undefined, "Register New Donor")
-            }
+            onClick={() => openCreateAccountModal(undefined, "Create New Donor")}
           >
             Register New Donor
           </Button>
@@ -182,9 +250,16 @@ const CharitiesTable = () => {
           table={table}
           loading={isLoading}
           refetch={DonorsAPI.fetchAllDonors}
-          // onSelectedRowsDelete={() => console.log('hi')}
         />
       </div>
+
+      <CreateAccountForm
+        isOpen={isCreateAccountModalOpen}
+        onClose={closeCreateAccountModal}
+        onSubmit={handleCreateAccount}
+        loading={loading}
+      />
+
       <div className="mt-auto">
         <PaginationControls
           pageNo={paginationData?.pageNumber ?? 0}
@@ -202,4 +277,4 @@ const CharitiesTable = () => {
   );
 };
 
-export default CharitiesTable;
+export default DonorsTable;

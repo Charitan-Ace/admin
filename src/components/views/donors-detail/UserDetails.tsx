@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { HeadlessChart } from '@/components/reusable/chart/HeadlessChart'
 import { useChart } from '@/components/reusable/chart/hooks/useChart'
-import donorsApiClient from '../donors/services/DonorsMockApi';
-
+import { DonorsAPI } from '../donors/services/DonorsAPI.ts';
+import { DonorGetResponse } from '../donors/services/interfaces';
 
 // Mock data for the donation history
 const donationData = [
@@ -24,12 +24,12 @@ export default function UserDetailPage() {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [user, setUser] = useState({
     id,
     firstName: '',
     lastName: '',
-    email: '',
+    address: '',
     avatarUrl: '',
   });
 
@@ -46,18 +46,23 @@ export default function UserDetailPage() {
     const fetchDonorDetails = async () => {
       try {
         setLoading(true);
-        const donorData = await donorsApiClient.getById(id as string);
-        console.log('Donor details:', donorData);
+        const donorData = await DonorsAPI.fetchDonorById(id as string);
+        console.log('Received donor data:', donorData); // Debug log
+
+        if (!donorData) {
+          throw new Error('No donor data received');
+        }
+
         setUser({
-          id: donorData.id,
-          firstName: donorData.name.split(' ')[0], 
-          lastName: donorData.name.split(' ')[1],
-          email: donorData.email || 'N/A',
-          avatarUrl: donorData.avatarUrl || 'https://example.com/avatar.jpg',
+          id: donorData?.userId || '',
+          firstName: donorData?.firstName || '',
+          lastName: donorData?.lastName || '',
+          address: donorData?.address || '',
+          avatarUrl: donorData?.userProfile?.avatarUrl || 'https://example.com/avatar.jpg',
         });
       } catch (err) {
         console.error('Error fetching donor:', err);
-        setError('Failed to fetch donor details');
+        setError(err instanceof Error ? err.message : 'Failed to fetch donor details');
       } finally {
         setLoading(false);
       }
@@ -107,10 +112,10 @@ export default function UserDetailPage() {
               <div className="space-y-2">
                 <p><strong>First Name:</strong> {user.firstName}</p>
                 <p><strong>Last Name:</strong> {user.lastName}</p>
-                <p><strong>Email:</strong> {user.email}</p>
+                <p><strong>Address:</strong> {user.address}</p>
               </div>
             </div>
-            
+
             <div>
               <h3 className="text-lg font-semibold mb-2">Donation History</h3>
               <div className="h-[200px]">
@@ -125,10 +130,6 @@ export default function UserDetailPage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-end space-x-2">
-            <Button onClick={handleEdit}>Edit User</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete User</Button>
-          </CardFooter>
         </Card>
       </div>
     );

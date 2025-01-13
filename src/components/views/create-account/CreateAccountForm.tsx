@@ -8,7 +8,7 @@ import { createAccountSchema } from "@/components/views/create-account/schemas/c
 import { CreateAccountFormFields } from "./types/interfaces";
 import FormInput from "@/components/reusable/form/input/FormInput";
 import GenericModal from "@/components/reusable/modal/generic/GenericModal";
-import { donorsAPI } from "../donors/services/DonorsAPI.ts";
+import { DonorsAPI } from "../donors/services/DonorsAPI.ts";
 
 // const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = [
@@ -22,17 +22,15 @@ const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg"];
 interface CreateAccountFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmitStatus: (success: boolean, message: string) => void;
-  isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
+  onSubmit: (data: CreateAccountFormFields) => void;
+  loading: boolean;
 }
 
 export function CreateAccountForm({
   isOpen,
   onClose,
-  onSubmitStatus,
-  isLoading,
-  setIsLoading,
+  onSubmit,
+  loading,
 }: CreateAccountFormProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
@@ -48,26 +46,6 @@ export function CreateAccountForm({
       address: "",
     },
   });
-
-  const onFinish = async (values: CreateAccountFormFields) => {
-    try {
-      setIsLoading(true);
-      // const { image, video, ...formData } = values;
-      const { ...formData } = values;
-      console.log(formData);
-      const response = await donorsAPI.createAccount(formData);
-
-      if (response) {
-        onSubmitStatus(true, "Account created successfully");
-        form.reset();
-      }
-    } catch (error) {
-      onSubmitStatus(
-        false,
-        error instanceof Error ? error.message : "Failed to create account",
-      );
-    }
-  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,7 +75,7 @@ export function CreateAccountForm({
       isOpen={isOpen}
       onClose={onClose}
       bodyContent={
-        <>
+        <div className="max-h-[60vh] overflow-y-auto pr-4">
           <p className="text-sm text-gray-600 mb-4">
             Please fill in your details to create a new account.
           </p>
@@ -191,7 +169,7 @@ export function CreateAccountForm({
               )}
             </form>
           </Form>
-        </>
+        </div>
       }
       footerContent={
         <>
@@ -199,12 +177,10 @@ export function CreateAccountForm({
             Cancel
           </Button>
           <Button
-            onClick={form.handleSubmit(onFinish)}
-            disabled={
-              isLoading || Object.keys(form.formState.errors).length > 0
-            }
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={loading || Object.keys(form.formState.errors).length > 0}
           >
-            {isLoading ? "Creating..." : "Create Account"}
+            {loading ? "Creating..." : "Create Account"}
           </Button>
         </>
       }
