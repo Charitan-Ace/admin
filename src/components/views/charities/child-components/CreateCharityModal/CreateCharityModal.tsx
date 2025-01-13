@@ -56,6 +56,7 @@ const CreateCharityFormModal = ({
               disabled={loading}
               type="password"
             />
+            
           </form>
         </>
       }
