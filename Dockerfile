@@ -17,3 +17,5 @@ RUN pnpm run build
 FROM joseluisq/static-web-server:2
 COPY --from=build /app/dist /app/public
 WORKDIR /app
+
+CMD ["--page-fallback", "/app/public/index.html"]
