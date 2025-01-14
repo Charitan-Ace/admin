@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/Client";
 import { DonorGetResponse } from "./interfaces";
 import donorStore from "../store/createDonorStore";
 import { CreateAccountFormData } from "../../create-account/schemas/createAccountSchema";
-import { CreateAccountFormFields, CreateDonorData } from "../../create-account/types/interfaces";
+import { CreateAccountFormFields, CreateDonorData, DonorCreateSchema } from "../../create-account/types/interfaces";
 
 class DonorsAPI {
   static async fetchAllDonors() {
@@ -64,6 +64,25 @@ class DonorsAPI {
       return response;
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  static async updateDonor(donorId: string, updateData: Partial<DonorCreateSchema>) {
+    try {
+      const response = await apiClient.patch(`/api/profile/donor/update`, {
+        body: JSON.stringify({
+          ...updateData
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      return response;
+    } catch (error) {
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to update donor"
+      );
     }
   }
 }

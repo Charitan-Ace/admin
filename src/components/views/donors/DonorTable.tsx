@@ -23,6 +23,8 @@ import { toast } from "react-toastify";
 import { CreateAccountFormFields } from "@/components/views/create-account/types/interfaces";
 import { CreateAccountFormData } from "../create-account/schemas/createAccountSchema";
 import { useNavigate } from "react-router";
+import { apiClient } from "@/lib/api/Client.ts";
+import AssetsService from "@/lib/api/services/AssetsService.ts";
 
 const DonorsTable = () => {
   const [loading, setLoading] = useState(false);
@@ -47,7 +49,10 @@ const DonorsTable = () => {
   const handleCreateAccount = async (data: CreateAccountFormData) => {
     try {
       setLoading(true);
-      await DonorsAPI.createAccount({
+      console.log("Form data received:", data);
+
+      // First create the account
+      const response = await DonorsAPI.createAccount({
         email: data.email,
         password: data.password,
         profile: {
@@ -55,9 +60,45 @@ const DonorsTable = () => {
           lastName: data.lastName,
           address: data.address ?? undefined,
         },
-
       });
 
+      if(!response){
+        toast.error("Failed to create account", {
+          position: "bottom-right",
+        });
+        return;
+      }
+
+      const userId = (response as any).id;
+      console.log("User ID:", userId);
+      const files = data.image;
+
+      const assetClients = new AssetsService(apiClient);
+
+      if(!files){
+        toast.success("Account created successfully!", {
+          position: "bottom-right",
+        });
+        DonorsAPI.fetchAllDonors();
+        return;
+      }
+
+      
+
+      // If there's an image file, upload it
+      if (files[0] instanceof File) {
+        console.log("Image file found:", files[0]);
+        const signedUrl = await assetClients.uploadFileWithSignedUrl(files[0], userId);
+        if(signedUrl){
+          await DonorsAPI.updateDonor(userId, {
+            userId: userId,
+            assetKeys: signedUrl,
+          });
+        }
+      } else {
+        console.log("No valid image file found in form data");
+      }
+      
       toast.success("Account created successfully!", {
         position: "bottom-right",
       });

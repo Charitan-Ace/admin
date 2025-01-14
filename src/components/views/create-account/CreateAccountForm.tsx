@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,12 @@ import FormInput from "@/components/reusable/form/input/FormInput";
 import GenericModal from "@/components/reusable/modal/generic/GenericModal";
 import { DonorsAPI } from "../donors/services/DonorsAPI.ts";
 
-// const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
   "image/webp",
 ];
-const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/ogg"];
 
 interface CreateAccountFormProps {
   isOpen: boolean;
@@ -32,8 +30,8 @@ export function CreateAccountForm({
   onSubmit,
   loading,
 }: CreateAccountFormProps) {
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<CreateAccountFormFields>({
@@ -48,25 +46,69 @@ export function CreateAccountForm({
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      alert("Please upload a valid image file");
+      return;
+    }
+
+    try {
+      const objectUrl = URL.createObjectURL(file);
+      setImageFile(file);
+      setImagePreview(objectUrl);
+      console.log("Setting image in form:", files); // Add this log
+      form.setValue('image', files, { 
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true
+      });
+      console.log("Current form values:", form.getValues()); // Add this log
+    } catch (error) {
+      console.error('Error handling image:', error);
     }
   };
 
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setVideoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const removeImage = () => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
     }
+    setImageFile(null);
+    setImagePreview(null);
+    form.setValue("image", null);
+    const imageInput = document.getElementById('image') as HTMLInputElement;
+    if (imageInput) imageInput.value = '';
+  };
+
+  // Modified cleanup
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
+  // Add file information display
+  const renderFileInfo = (file: File | null) => {
+    if (!file) return null;
+    return (
+      <div className="text-sm text-gray-500 mt-1 mb-2">
+        <p>File name: {file.name}</p>
+        <p>Size: {(file.size / 1024 / 1024).toFixed(2)} MB</p>
+        <p>Type: {file.type}</p>
+      </div>
+    );
+  };
+
+  const onSubmitWrapper = (data: CreateAccountFormFields) => {
+    // Ensure we're passing the actual file in the form data
+    const formData = {
+      ...data,
+      image: imageFile ? [imageFile] : undefined // Use the imageFile state instead of form value
+    };
+    console.log("Submitting form with data:", formData);
+    onSubmit(formData);
   };
 
   return (
@@ -80,7 +122,7 @@ export function CreateAccountForm({
             Please fill in your details to create a new account.
           </p>
           <Form {...form}>
-            <form className="space-y-8">
+            <form className="space-y-8" onSubmit={form.handleSubmit(onSubmitWrapper)}>
               <FormInput
                 id="email"
                 type="email"
@@ -132,41 +174,40 @@ export function CreateAccountForm({
                 register={form.register}
               />
 
-              <FormInput
-                id="image"
-                type="file"
-                label="Profile Image"
-                accept={ACCEPTED_IMAGE_TYPES.join(",")}
-                error={form.formState.errors.image?.message?.toString()}
-                register={form.register}
-                onChange={(e) => handleImageChange(e)}
-              />
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Profile preview"
-                  className="mt-2 rounded-md max-w-xs h-auto"
-                />
-              )}
-
-              <FormInput
-                id="video"
-                type="file"
-                label="Introduction Video"
-                accept={ACCEPTED_VIDEO_TYPES.join(",")}
-                error={form.formState.errors.video?.message?.toString()}
-                register={form.register}
-                onChange={(e) => handleVideoChange(e)}
-              />
-              {videoPreview && (
-                <video
-                  src={videoPreview}
-                  controls
-                  className="mt-2 rounded-md max-w-xs h-auto"
-                >
-                  Your browser does not support the video tag.
-                </video>
-              )}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex flex-col gap-4">
+                    <FormInput
+                      id="image"
+                      type="file"
+                      label="Profile Image"
+                      accept={ACCEPTED_IMAGE_TYPES.join(",")}
+                      error={form.formState.errors.image?.message?.toString()}
+                      register={form.register}
+                      onChange={handleImageChange}
+                    />
+                    {renderFileInfo(imageFile)}
+                    {imagePreview && (
+                      <div className="relative inline-block">
+                        <img
+                          src={imagePreview}
+                          alt="Profile preview"
+                          className="rounded-md max-w-[200px] h-auto object-contain"
+                          onError={(e) => console.error('Image loading error:', e)}
+                          onLoad={() => console.log('Image loaded successfully')}
+                        />
+                        <button
+                          type="button"
+                          onClick={removeImage}
+                          className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 shadow-md z-10"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </form>
           </Form>
         </div>
@@ -177,8 +218,8 @@ export function CreateAccountForm({
             Cancel
           </Button>
           <Button
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={loading || Object.keys(form.formState.errors).length > 0}
+            onClick={form.handleSubmit(onSubmitWrapper)}
+            disabled={loading}
           >
             {loading ? "Creating..." : "Create Account"}
           </Button>
@@ -187,3 +228,14 @@ export function CreateAccountForm({
     />
   );
 }
+
+
+// create -> createAccount (chua co) -> {
+  
+//   get user id
+//   redirect ve cai bang;
+
+//   upload{
+//     get preURL voi userID (goi api) -> callback 
+//   }
+// }

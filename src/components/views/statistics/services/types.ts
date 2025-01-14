@@ -24,8 +24,35 @@ export interface Project {
   
   export interface MockData {
     projects: Project[];
-    donations: Donation[];
     newDonors: NewDonor[];
     continentData: RegionData[];
     countryData: RegionData[];
+  }
+
+  interface StatisticsParams {
+    userId?: string;
+    role?: string;
+    category?: string;
+    isoCode?: string;
+    continent?: string;
+    status?: string;
+  }
+  
+  interface StatisticsResponse {
+    totalDonations?: number;
+    totalProjects?: number;
+    [key: string]: any;
+  }
+  
+  interface NewUserParams {
+    time?: 'week' | 'month' | 'year';
+  }
+  
+  interface NewUserResponse {
+    count: number;
+    period: string;
+    data: Array<{
+      date: string;
+      count: number;
+    }>;
   }
