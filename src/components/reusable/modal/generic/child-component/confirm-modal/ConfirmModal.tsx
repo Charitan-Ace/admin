@@ -7,6 +7,7 @@ const ConfirmModal = ({
   onClose,
   onConfirm,
   message,
+  isLoading,
   title = "Confirm Action",
   confirmText = "Confirm",
   cancelText = "Cancel",
@@ -18,10 +19,10 @@ const ConfirmModal = ({
     bodyContent={<div>{message}</div>}
     footerContent={
       <div className="flex flex-row gap-x-2">
-        <Button variant="outline" onClick={onClose}>
+        <Button variant="outline" loading={isLoading} onClick={onClose}>
           {cancelText}
         </Button>
-        <Button variant="success" onClick={onConfirm}>
+        <Button variant="success" loading={isLoading} onClick={onConfirm}>
           {confirmText}
         </Button>
       </div>

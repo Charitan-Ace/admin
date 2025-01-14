@@ -24,6 +24,7 @@ import { CreateAccountFormFields } from "@/components/views/create-account/types
 import { CreateAccountFormData } from "../create-account/schemas/createAccountSchema";
 import { useNavigate } from "react-router";
 
+
 const DonorsTable = () => {
   const [loading, setLoading] = useState(false);
   const { data, isLoading, paginationData, filterData, totalPages } =
@@ -227,7 +228,7 @@ const DonorsTable = () => {
       totalPages: totalPages ?? 0,
       pageIndex: paginationData?.pageNumber ?? 0,
       paginationSize: paginationData?.pageSize ?? 10,
-      columns: charityColumns,
+      columns: donorColumns,
       enablePagination: true,
       filter: { ...filterData },
       onPaginationChange: updatePaginationParams,
