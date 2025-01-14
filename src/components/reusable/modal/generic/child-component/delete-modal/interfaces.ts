@@ -1,5 +1,5 @@
 export interface DeleteModalProps {
-  id: string | number | string[] | number[];
+  isLoading: boolean;
   title?: string;
   deleteText?: string;
   cancelText?: string;

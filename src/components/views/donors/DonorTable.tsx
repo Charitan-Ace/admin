@@ -26,6 +26,7 @@ import { useNavigate } from "react-router";
 import { apiClient } from "@/lib/api/Client.ts";
 import AssetsService from "@/lib/api/services/AssetsService.ts";
 
+
 const DonorsTable = () => {
   const [loading, setLoading] = useState(false);
   const { data, isLoading, paginationData, filterData, totalPages } =
@@ -268,7 +269,7 @@ const DonorsTable = () => {
       totalPages: totalPages ?? 0,
       pageIndex: paginationData?.pageNumber ?? 0,
       paginationSize: paginationData?.pageSize ?? 10,
-      columns: charityColumns,
+      columns: donorColumns,
       enablePagination: true,
       filter: { ...filterData },
       onPaginationChange: updatePaginationParams,

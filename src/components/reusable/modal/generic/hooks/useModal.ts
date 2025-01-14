@@ -4,17 +4,19 @@ import { UseModalReturn } from "./interfaces";
 const useModal = (withId = true): UseModalReturn => {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [id, setId] = useState<
-    string | number | string[] | number[] | undefined
-  >(undefined);
+  const [id, setId] = useState<string | string[] | undefined>(undefined);
+  const [type, setType] = useState<unknown>(undefined);
 
   const openModal = useCallback(
-    (id: string | number | string[] | number[] | undefined, title: string) => {
+    (id: string | string[] | undefined, title: string, type?: unknown) => {
       setTitle(title);
       setIsOpen(true);
 
       if (withId) {
         setId(id);
+      }
+      if (type) {
+        setType(type);
       }
     },
     [withId],
@@ -26,9 +28,12 @@ const useModal = (withId = true): UseModalReturn => {
     if (withId) {
       setId(undefined);
     }
-  }, [withId]);
+    if (type) {
+      setType(undefined);
+    }
+  }, [withId, type]);
 
-  return { id, isOpen, title, openModal, closeModal };
+  return { id, isOpen, type, title, openModal, closeModal };
 };
 
 export default useModal;

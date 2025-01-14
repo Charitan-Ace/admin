@@ -32,7 +32,6 @@ export default class APIClient {
     const url = new URL(path, this.baseURL);
     const requestOptions = this.getRequestOptions(options);
 
-    // Add query parameters if provided
     if (options?.params) {
       Object.entries(options.params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -54,12 +53,28 @@ export default class APIClient {
     return data as T;
   }
 
-  async post<T>(path: string, options?: RequestInit): Promise<T> {
+  async post<T>(
+    path: string,
+    options?: RequestInit & {
+      params?: Record<string, unknown>;
+      headers?: Record<string, string>;
+      returnHeaders?: boolean;
+    },
+  ): Promise<T | { data: T; headers: Record<string, string> }> {
     const url = new URL(path, this.baseURL);
     const requestOptions = this.getRequestOptions(options);
 
+    if (options?.params) {
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          url.searchParams.append(key, String(value));
+        }
+      });
+    }
+
     const response = await fetch(url, {
       ...requestOptions,
+      headers: options?.headers,
       method: "POST",
     });
 
@@ -68,6 +83,15 @@ export default class APIClient {
     }
 
     const data = await response.json();
+
+    if (options?.returnHeaders) {
+      const headers: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+      return { data: data as T, headers };
+    }
+
     return data as T;
   }
 
