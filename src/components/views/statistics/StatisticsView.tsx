@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import HeadlessChart from '@/components/reusable/chart/HeadlessChart'
 import useChart from '@/components/reusable/chart/hooks/useChart'
 import ComparisonChart from './comparison-chart'
+import { StatisticsAPI } from './services/StatisticsAPI'
+import { ProjectCategory } from '@/components/views/statistics/services/statistics';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D']
 
@@ -19,30 +21,42 @@ export default function StatisticsDashboard() {
   const [region2, setRegion2] = useState('Asia')
   const [data, setData] = useState<MockData>({
     projects: [],
-    donations: [],
     newDonors: [],
     continentData: [],
     countryData: []
   })
+  const [approvedProjects, setApprovedProjects] = useState<Record<string, number>>({});
+  const [categoryDonations, setCategoryDonations] = useState<Record<ProjectCategory, number>>({} as Record<ProjectCategory, number>);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [projects, donations, newDonors, continentData, countryData] = await Promise.all([
+        const [projects, newDonors, continentData, countryData, approved] = await Promise.all([
           mockApiClient.get('projects'),
-          mockApiClient.get('donations'),
-          mockApiClient.get('newDonors'),
+          // mockApiClient.get('donations'),
+          StatisticsAPI.getNewUsers("week"),
           mockApiClient.get('continentData'),
-          mockApiClient.get('countryData')
+          mockApiClient.get('countryData'),
+          StatisticsAPI.getApprovedProjects()
         ]);
+
+        const categoryPromises = Object.values(ProjectCategory).map(async (category) => {
+          const projectsByCategory = await StatisticsAPI.getApprovedProjectsByCategory(category);
+          const totalForCategory = Object.values(projectsByCategory).reduce((sum, amount) => sum + amount, 0);
+          return [category, totalForCategory] as [ProjectCategory, number];
+        });
+
+        const categoryResults = await Promise.all(categoryPromises);
+        const categoryData = Object.fromEntries(categoryResults) as Record<ProjectCategory, number>;
         
         setData({
           projects,
-          donations,
           newDonors,
           continentData,
           countryData
         });
+        setApprovedProjects(approved);
+        setCategoryDonations(categoryData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -51,10 +65,10 @@ export default function StatisticsDashboard() {
     fetchData();
   }, []);
 
-  const totalActiveProjects = data.projects.filter(p => p.status === 'active').length;
+  const totalActiveProjects = Object.keys(approvedProjects).length;
   const totalCompletedProjects = data.projects.filter(p => p.status === 'inactive').length;
-  const totalDonations = data.donations.reduce((sum, d) => sum + d.value, 0);
-  const totalNewDonors = data.newDonors.reduce((sum, d) => sum + d.count, 0);
+  const totalDonations = Object.values(approvedProjects).reduce((sum, amount) => sum + amount, 0);
+  const totalNewDonors = data.newDonors.length;
 
   // Configure charts using useChart hook
   const projectsChart = useChart({
@@ -62,34 +76,29 @@ export default function StatisticsDashboard() {
     type: 'bar',
     xAxis: 'period',
     series: [
-      { key: 'active', name: 'Active Projects', color: '#39ff33' },
-      { key: 'completed', name: 'Completed Projects', color: '#ff5733' }
+      { key: 'active', name: 'Active Projects', color: '#39ff33' }
     ]
   });
 
   const donationsChart = useChart({
-    data: data.donations,
+    data: Object.entries(categoryDonations)
+      .filter(([_, value]) => value > 0) // Filter out categories with zero donations
+      .map(([category, value]) => ({
+        category,
+        value
+      })),
     type: 'pie',
     xAxis: 'category',
     yAxis: 'value',
-    series: data.donations.map((d, i) => ({
-      key: 'value',
-      name: d.category,
-      color: COLORS[i % COLORS.length]
-    }))
+    series: Object.entries(categoryDonations)
+      .filter(([_, value]) => value > 0) // Filter out categories with zero donations
+      .map(([category], i) => ({
+        key: 'value',
+        name: category,
+        color: COLORS[i % COLORS.length]
+      }))
   });
 
-  const donorsChart = useChart({
-    data: data.newDonors.map(d => ({
-      period: d.period,
-      value: d.count // rename count to value for consistency
-    })),
-    type: 'line',
-    xAxis: 'period',
-    series: [
-      { key: 'value', name: 'New Donors', color: COLORS[0] }
-    ]
-  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -118,14 +127,6 @@ export default function StatisticsDashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed Projects</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCompletedProjects}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Donations</CardTitle>
           </CardHeader>
           <CardContent>
@@ -146,7 +147,6 @@ export default function StatisticsDashboard() {
         <TabsList>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="donations">Donations</TabsTrigger>
-          <TabsTrigger value="donors">New Donors</TabsTrigger>
           <TabsTrigger value="comparison">Comparison</TabsTrigger>
         </TabsList>
         <TabsContent value="projects">
@@ -186,25 +186,7 @@ export default function StatisticsDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="donors">
-          <Card>
-            <CardHeader>
-              <CardTitle>New Donor Registrations</CardTitle>
-              <CardDescription>Number of new donors over time</CardDescription>
-            </CardHeader>
-            <CardContent className="pt-2 min-h-[400px]">
-              <HeadlessChart
-                data={donorsChart.chartData}
-                type={donorsChart.chartType}
-                xAxisKey={donorsChart.xAxisKey}
-                yAxisKey="value"  
-                series={donorsChart.seriesConfig}
-                visibleSeries={donorsChart.visibleSeries}
-                className="min-h-[400px]"
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
+      
         <TabsContent value="comparison">
           <Card>
             <CardHeader>

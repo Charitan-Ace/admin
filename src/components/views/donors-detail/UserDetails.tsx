@@ -7,6 +7,7 @@ import { HeadlessChart } from '@/components/reusable/chart/HeadlessChart'
 import { useChart } from '@/components/reusable/chart/hooks/useChart'
 import { DonorsAPI } from '../donors/services/DonorsAPI.ts';
 import { DonorGetResponse } from '../donors/services/interfaces';
+import { apiClient } from '@/lib/api/Client';
 
 // Mock data for the donation history
 const donationData = [
@@ -30,8 +31,10 @@ export default function UserDetailPage() {
     firstName: '',
     lastName: '',
     address: '',
-    avatarUrl: '',
+    assetsKey: '',
   });
+
+  const [processedAvatarUrl, setProcessedAvatarUrl] = useState<string>('');
 
   const { chartType, seriesConfig, visibleSeries } = useChart({
     data: donationData,
@@ -58,7 +61,7 @@ export default function UserDetailPage() {
           firstName: donorData?.firstName || '',
           lastName: donorData?.lastName || '',
           address: donorData?.address || '',
-          avatarUrl: donorData?.userProfile?.avatarUrl || 'https://example.com/avatar.jpg',
+          assetsKey: donorData.assetsKey || 'https://example.com/avatar.jpg',
         });
       } catch (err) {
         console.error('Error fetching donor:', err);
@@ -73,14 +76,21 @@ export default function UserDetailPage() {
     }
   }, [id]);
 
-  const handleEdit = () => {
-    console.log('Edit user');
-  };
-
-  const handleDelete = () => {
-    console.log('Delete user');
-  };
-
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      if (user.assetsKey) {
+        try {
+          const processedUrl = await apiClient.assets.fetchImage(user.assetsKey);
+          setProcessedAvatarUrl(processedUrl);
+        } catch (err) {
+          console.error('Error fetching avatar:', err);
+        }
+      }
+    };
+    
+    fetchAvatar();
+  }, [user.assetsKey]);
+  console.log(user.assetsKey);
   const handleBack = () => {
     navigate(-1);
   };
@@ -106,7 +116,7 @@ export default function UserDetailPage() {
           <CardContent className="space-y-6">
             <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
               <Avatar className="w-64 h-64">
-                <AvatarImage src={user.avatarUrl} alt={`${user.firstName} ${user.lastName}`} />
+                <AvatarImage src={user.assetsKey} alt={`${user.firstName} ${user.lastName}`} />
                 <AvatarFallback>{user.firstName[0]}{user.lastName[0]}</AvatarFallback>
               </Avatar>
               <div className="space-y-2">

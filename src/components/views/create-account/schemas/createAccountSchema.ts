@@ -33,18 +33,17 @@ export const createAccountSchema = yup.object().shape({
   assetsKey: yup.string().nullable(),
   image: yup
     .mixed()
-    .test("fileSize", "Max file size is 5MB", (value) => {
-      if (!value || !value[0]) return false;
+
+    .nullable() // Make it nullable
+    .test('fileSize', 'Max file size is 5MB', (value) => {
+      if (!value || !value[0]) return true; // Return true if no file
       return value[0].size <= MAX_FILE_SIZE;
     })
-    .test(
-      "fileType",
-      ".jpg, .jpeg, .png and .webp files are accepted",
-      (value) => {
-        if (!value || !value[0]) return false;
-        return ACCEPTED_IMAGE_TYPES.includes(value[0].type);
-      },
-    ),
+    .test('fileType', '.jpg, .jpeg, .png and .webp files are accepted', (value) => {
+      if (!value || !value[0]) return true; // Return true if no file
+      return ACCEPTED_IMAGE_TYPES.includes(value[0].type);
+    }),
+
   video: yup
     .mixed()
     .nullable()

@@ -11,9 +11,11 @@ export interface CreateAccountFormFields {
 }
 
 export interface DonorCreateSchema {
+  userId?: string;
   firstName?: string;
   lastName?: string;
   address?: string;
+  assetKeys?: string;
 }
 
 export interface CreateDonorData {
