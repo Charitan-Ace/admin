@@ -4,6 +4,7 @@ import { DeleteModalProps } from "./interfaces";
 
 const DeleteModal = ({
   isOpen,
+  isLoading,
   onClose,
   onDelete,
   message,
@@ -18,10 +19,10 @@ const DeleteModal = ({
     bodyContent={<div>{message}</div>}
     footerContent={
       <div className="flex flex-row gap-x-2">
-        <Button variant="outline" onClick={onClose}>
+        <Button variant="outline" loading={isLoading} onClick={onClose}>
           {cancelText}
         </Button>
-        <Button variant="destructive" onClick={onDelete}>
+        <Button variant="destructive" loading={isLoading} onClick={onDelete}>
           {deleteText}
         </Button>
       </div>
