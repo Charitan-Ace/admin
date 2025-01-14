@@ -10,6 +10,10 @@ const createCharitySchema = yup.object({
     .string()
     .oneOf([yup.ref("password")], "Passwords must match")
     .required("Confirm password is required"),
+  companyName: yup.string().nullable(),
+  address: yup.string().nullable(),
+  taxCode: yup.string().nullable(),
+  organizationType: yup.string().nullable(),
 });
 
 export { createCharitySchema };

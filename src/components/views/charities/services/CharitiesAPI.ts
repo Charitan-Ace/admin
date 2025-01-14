@@ -37,9 +37,15 @@ class CharitiesAPI {
   ) {
     try {
       const requestData = {
-        ...data,
+        email: data.email,
+        password: data.password,
         role: "CHARITY",
-        profile: {},
+        profile: {
+          companyName: data.companyName,
+          address: data.address,
+          taxCode: data.taxCode,
+          organizationType: data.organizationType,
+        },
       };
 
       const response = await apiClient.post<
@@ -54,6 +60,7 @@ class CharitiesAPI {
       return response;
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 }

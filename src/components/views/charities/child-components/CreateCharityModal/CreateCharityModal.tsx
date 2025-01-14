@@ -5,6 +5,8 @@ import FormInput from "@/components/reusable/form/input/FormInput";
 import GenericModal from "@/components/reusable/modal/generic/GenericModal";
 import { createCharitySchema } from "./form-schemas/CreateCharitySchema";
 import { CreateCharityFormData, CharityFormProps } from "./interfaces";
+import FormDropdown from "@/components/reusable/form/dropdown/FormDropdown";
+import { OrganizationType } from "../../services/interfaces";
 
 const CreateCharityFormModal = ({
   isOpen,
@@ -56,7 +58,38 @@ const CreateCharityFormModal = ({
               disabled={loading}
               type="password"
             />
-            
+            <FormInput<CreateCharityFormData>
+              id="companyName"
+              label="Company Name"
+              error={errors.companyName?.message}
+              register={register}
+              disabled={loading}
+              type="text"
+            />
+            <FormInput<CreateCharityFormData>
+              id="address"
+              label="Address"
+              error={errors.address?.message}
+              register={register}
+              disabled={loading}
+              type="text"
+            />
+            <FormInput<CreateCharityFormData>
+              id="taxCode"
+              label="Tax Code"
+              error={errors.taxCode?.message}
+              register={register}
+              disabled={loading}
+              type="text"
+            />
+            <FormDropdown<CreateCharityFormData>
+              id="organizationType"
+              label="Organization Type"
+              error={errors.organizationType?.message}
+              register={register}
+              disabled={loading}
+              options={Object.values(OrganizationType)}
+            />
           </form>
         </>
       }

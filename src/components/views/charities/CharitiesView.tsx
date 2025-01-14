@@ -206,10 +206,7 @@ const CharitiesTable = () => {
 
   const handleRegisterCharity = async (data: CreateCharityFormData) => {
     try {
-      await CharitiesAPI.registerNewCharity({
-        email: data.email,
-        password: data.password,
-      });
+      await CharitiesAPI.registerNewCharity({ ...data });
 
       toast.success("Charity registered successfully!", {
         position: "bottom-right",
@@ -266,7 +263,7 @@ const CharitiesTable = () => {
       <CreateCharityFormModal
         isOpen={isCreateCharityModalOpen}
         onClose={closeCreateCharityModal}
-        onSubmit={handleRegisterCharity} // Handle create and update submissions
+        onSubmit={handleRegisterCharity}
         loading={isLoading}
         // charityData={selectedCharity}
       />
