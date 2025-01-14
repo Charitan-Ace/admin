@@ -26,6 +26,7 @@ import { categoryColors, statusColors } from "./interfaces";
 import DeleteModal from "@/components/reusable/modal/generic/child-component/delete-modal/DeleteModal";
 import useModal from "@/components/reusable/modal/generic/hooks/useModal";
 import ConfirmModal from "@/components/reusable/modal/generic/child-component/confirm-modal/ConfirmModal";
+import ProjectFormModal from "./child-component/ProjectModal";
 
 const ProjectTable = () => {
   const { data, isLoading, paginationData, filterData, totalPages } =
@@ -60,6 +61,15 @@ const ProjectTable = () => {
     title: confirmProjectModalTitle,
     openModal: openConfirmProjectModal,
     closeModal: closeConfirmProjectModal,
+  } = useModal();
+
+  const {
+    id: projectModalId,
+    type: projectModalType,
+    isOpen: isProjectModalOpen,
+    title: projectModalTitle,
+    openModal: openProjectModal,
+    closeModal: closeProjectModal,
   } = useModal();
 
   const projectsColumns: ColumnDef<Project>[] = [
@@ -251,11 +261,7 @@ const ProjectTable = () => {
         const menuItems = [
           {
             handlerName: "Edit",
-            handler: () => console.log(id, "edit"),
-          },
-          {
-            handlerName: "Profile",
-            handler: () => console.log(id, "profile"),
+            handler: () => openRegisterProjectModal(id, "Edit"),
           },
         ];
 
@@ -325,6 +331,10 @@ const ProjectTable = () => {
     }
   };
 
+  const openRegisterProjectModal = (id: string | undefined, title: string) => {
+    openProjectModal(id, title, id !== undefined ? "edit" : "create");
+  };
+
   const { table, goToPage, setPageSize, nextPage, previousPage } =
     useTable<Project>({
       data: data ?? [],
@@ -345,9 +355,7 @@ const ProjectTable = () => {
           <h1 className="text-xl font-bold mb-4">Projects Table</h1>
           <Button
             variant="outline"
-            onClick={() =>
-              openCreateCharityModal(undefined, "Register New Project")
-            }
+            onClick={() => openRegisterProjectModal(undefined, "Register")}
           >
             Register New Project
           </Button>
@@ -432,6 +440,50 @@ const ProjectTable = () => {
         }
         title="Delete Project"
         message={deleteProjectModalTitle}
+      />
+
+      <ProjectFormModal
+        projectId={
+          projectModalType === "edit"
+            ? Array.isArray(projectModalId)
+              ? projectModalId[0]
+              : projectModalId
+            : ""
+        }
+        title={projectModalTitle}
+        loading={isLoading}
+        isOpen={isProjectModalOpen}
+        onClose={closeProjectModal}
+        onSubmit={(data) =>
+          projectModalId === ""
+            ? ProjectsAPI.createProject(
+                data,
+                () =>
+                  toast.success("Project created successfully!", {
+                    position: "bottom-right",
+                  }),
+                () =>
+                  toast.error(`Failed to create project`, {
+                    position: "bottom-right",
+                  }),
+                closeProjectModal,
+              )
+            : ProjectsAPI.updateProjectDetails(
+                Array.isArray(projectModalId)
+                  ? projectModalId[0]
+                  : (projectModalId ?? ""),
+                data,
+                () =>
+                  toast.success("Project updated successfully!", {
+                    position: "bottom-right",
+                  }),
+                () =>
+                  toast.error(`Failed to update project`, {
+                    position: "bottom-right",
+                  }),
+                closeProjectModal,
+              )
+        }
       />
 
       <ToastContainer />

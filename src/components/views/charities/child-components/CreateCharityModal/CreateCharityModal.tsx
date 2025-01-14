@@ -16,6 +16,7 @@ const CreateCharityFormModal = ({
 }: CharityFormProps) => {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<CreateCharityFormData>({
@@ -83,10 +84,10 @@ const CreateCharityFormModal = ({
               type="text"
             />
             <FormDropdown<CreateCharityFormData>
-              id="organizationType"
+              name="organizationType"
               label="Organization Type"
               error={errors.organizationType?.message}
-              register={register}
+              control={control}
               disabled={loading}
               options={Object.values(OrganizationType)}
             />
