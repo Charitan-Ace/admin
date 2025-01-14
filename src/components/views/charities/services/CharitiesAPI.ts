@@ -15,8 +15,6 @@ class CharitiesAPI {
         { params: { ...queryParams } },
       );
 
-      console.log(response, queryParams);
-
       charityStore.getState().setData(response.content);
       charityStore.getState().setPaginationData(response.pageable);
       charityStore.getState().setTotalElements(response.totalElements);

@@ -227,7 +227,6 @@ const CharitiesTable = () => {
           table={table}
           loading={isLoading}
           refetch={CharitiesAPI.fetchAllCharities}
-          // onSelectedRowsDelete={() => console.log('hi')}
         />
       </div>
       <div className="mt-auto">

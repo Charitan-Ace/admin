@@ -49,7 +49,6 @@ class ProjectsAPI {
       });
 
       if ("data" in response) {
-        console.log(response.data, queryParams);
         projectStore.getState().setData(response.data);
 
         const paginationData: Pageable = {
