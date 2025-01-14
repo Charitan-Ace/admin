@@ -1,3 +1,3 @@
-const DOMAIN_NAME = "https://gateway.tail03350e.ts.net";
-const API_PORT = "";
+const DOMAIN_NAME = "http://localhost:";
+const API_PORT = "8080";
 export const API_URL = DOMAIN_NAME + API_PORT;

@@ -1,10 +1,12 @@
 export interface UseModalReturn {
-  id?: string | number | string[] | number[];
+  id?: string | string[];
   isOpen: boolean;
   title: string;
   openModal: (
-    id: string | number | string[] | number[] | undefined,
+    id: string | string[] | undefined,
     title: string,
+    type?: unknown,
   ) => void;
   closeModal: () => void;
+  type?: unknown;
 }

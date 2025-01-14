@@ -4,17 +4,28 @@ import useTable from "@/components/reusable/table/hooks/useTable";
 import { useStore } from "zustand";
 import { ProjectsAPI } from "./services/ProjectsAPI";
 import projectsStore from "./store/createProjectsStore";
-import { Project } from "./services/interfaces";
+import {
+  Country,
+  Project,
+  ProjectCategoryType,
+  ProjectStatusType,
+} from "./services/interfaces";
 import { Checkbox } from "@/components/ui/checkbox";
 import DefaultColumnHeader from "@/components/reusable/column/header/Header";
 import { FilterRequest, PagiableRequest } from "@/lib/api/interfaces/table";
 import PaginationControls from "@/components/reusable/table/pagination/Pagination";
 import { Button } from "@/components/reusable/button/Button";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ColumnFilterInputDropdown } from "@/components/reusable/column/filter/input/ColumnFilterInput";
 import ColumnFilterPlaceholder from "@/components/reusable/column/filter/placeholder/ColumnFilterPlaceholder";
-import ColumnSortFilter from "@/components/reusable/column/filter/sort/SortFilter";
+import ColumnFilterSelect from "@/components/reusable/column/filter/select/ColumnFilterSelect";
+import ActionsMenu from "@/components/reusable/column/actions/Actions";
+import Badge from "@/components/reusable/badge/BadgeComponent";
+import { categoryColors, statusColors } from "./interfaces";
+import DeleteModal from "@/components/reusable/modal/generic/child-component/delete-modal/DeleteModal";
+import useModal from "@/components/reusable/modal/generic/hooks/useModal";
+import ConfirmModal from "@/components/reusable/modal/generic/child-component/confirm-modal/ConfirmModal";
 
 const ProjectTable = () => {
   const { data, isLoading, paginationData, filterData, totalPages } =
@@ -34,7 +45,24 @@ const ProjectTable = () => {
     });
   };
 
-  const charityColumns: ColumnDef<Project>[] = [
+  const {
+    id: deleteProjectId,
+    isOpen: isDeleteProjectModalOpen,
+    title: deleteProjectModalTitle,
+    openModal: openDeleteProjectModal,
+    closeModal: closeDeleteProjectModal,
+  } = useModal();
+
+  const {
+    id: confirmProjectId,
+    type: confirmProjectType,
+    isOpen: isConfirmProjectModalOpen,
+    title: confirmProjectModalTitle,
+    openModal: openConfirmProjectModal,
+    closeModal: closeConfirmProjectModal,
+  } = useModal();
+
+  const projectsColumns: ColumnDef<Project>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -61,91 +89,241 @@ const ProjectTable = () => {
       size: 20,
     },
     {
-      id: "firstName",
-      accessorKey: "firstName",
+      id: "title",
+      accessorKey: "title",
       header: () => (
         <ColumnFilterPlaceholder
-          column="First name"
+          column="Project Title"
           filterContent={
-            <div className="flex flex-row gap-x-2">
-              <ColumnSortFilter
-                sortOrder={
-                  filterData?.filter === "firstName"
-                    ? (filterData?.order ?? "ascending")
-                    : "unsorted"
-                }
-                onChange={(order) => {
-                  updateFilterParams({
-                    filter: "firstName",
-                    order: order === "unsorted" ? undefined : order,
-                  });
-                }}
-              />
-              <ColumnFilterInputDropdown
-                column="First Name"
-                value={
-                  filterData?.filter === "firstName"
-                    ? (filterData?.keyword ?? "")
-                    : ""
-                }
-                onChange={(value) => {
-                  updateFilterParams({
-                    filter: "firstName",
-                    keyword: value,
-                  });
-                }}
-              />
-            </div>
+            <ColumnFilterInputDropdown
+              column="Project Title"
+              value={
+                filterData?.filter === "title"
+                  ? (filterData?.keyword ?? "")
+                  : ""
+              }
+              onChange={(value) => {
+                updateFilterParams({
+                  filter: "title",
+                  keyword: value,
+                });
+              }}
+            />
           }
         />
       ),
     },
     {
-      id: "lastName",
-      accessorKey: "lastName",
+      id: "description",
+      accessorKey: "description",
+      header: () => <DefaultColumnHeader title="Description" />,
+      size: 400,
+    },
+    {
+      id: "goal",
+      accessorKey: "goal",
+      header: () => <DefaultColumnHeader title="Goal ($)" />,
+      cell: ({ row }) => (
+        <span>{(row.getValue("goal") as string).toLocaleString()}</span>
+      ),
+    },
+    {
+      id: "startTime",
+      accessorKey: "startTime",
+      header: () => <DefaultColumnHeader title="Start Time" />,
+      cell: ({ row }) => (
+        <span>
+          {new Date(
+            Number(row.getValue("startTime")) * 1000,
+          ).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      id: "endTime",
+      accessorKey: "endTime",
+      header: () => <DefaultColumnHeader title="End Time" />,
+      cell: ({ row }) => (
+        <span>
+          {new Date(
+            Number(row.getValue("endTime")) * 1000,
+          ).toLocaleDateString()}
+        </span>
+      ),
+    },
+    {
+      id: "statusType",
+      accessorKey: "statusType",
       header: () => (
         <ColumnFilterPlaceholder
-          column="Last Name"
+          column="Status"
           filterContent={
-            <div className="flex flex-row gap-x-2">
-              <ColumnSortFilter
-                sortOrder={
-                  filterData?.filter === "lastName"
-                    ? (filterData?.order ?? "unsorted")
-                    : "unsorted"
-                }
-                onChange={(order) => {
-                  updateFilterParams({
-                    filter: "lastName",
-                    order: order === "unsorted" ? undefined : order,
-                  });
-                }}
-              />
-              <ColumnFilterInputDropdown
-                column="Last Name"
-                value={
-                  filterData?.filter === "lastName"
-                    ? (filterData?.keyword ?? "")
-                    : ""
-                }
-                onChange={(value) => {
-                  updateFilterParams({
-                    filter: "lastName",
-                    keyword: value,
-                  });
-                }}
-              />
-            </div>
+            <ColumnFilterSelect
+              column="Status"
+              value={
+                filterData?.filter === "statusType"
+                  ? (filterData?.keyword ?? null)
+                  : null
+              }
+              options={Object.values(ProjectStatusType)}
+              onValueChange={(value) => {
+                updateFilterParams({
+                  filter: "statusType",
+                  keyword: value ?? undefined,
+                });
+              }}
+            />
           }
+        />
+      ),
+      cell: ({ row }) => {
+        const status = row.getValue("statusType") as string;
+        return <Badge text={status} color={statusColors[status]} />;
+      },
+    },
+    {
+      id: "categoryType",
+      accessorKey: "categoryType",
+      header: () => (
+        <ColumnFilterPlaceholder
+          column="Category"
+          filterContent={
+            <ColumnFilterSelect
+              column="Category"
+              value={
+                filterData?.filter === "categoryType"
+                  ? (filterData?.keyword ?? null)
+                  : null
+              }
+              options={Object.values(ProjectCategoryType)}
+              onValueChange={(value) => {
+                updateFilterParams({
+                  filter: "categoryType",
+                  keyword: value ?? undefined,
+                });
+              }}
+            />
+          }
+        />
+      ),
+      cell: ({ row }) => {
+        const category = row.getValue("categoryType") as string;
+        return <Badge text={category} color={categoryColors[category]} />;
+      },
+    },
+    {
+      id: "countryIsoCode",
+      accessorKey: "countryIsoCode",
+      header: () => (
+        <ColumnFilterPlaceholder
+          column="Country"
+          filterContent={
+            <ColumnFilterSelect
+              column="Country"
+              value={
+                filterData?.filter === "countryIsoCode"
+                  ? (filterData?.keyword ?? null)
+                  : null
+              }
+              options={Object.keys(Country)}
+              onValueChange={(value) => {
+                updateFilterParams({
+                  filter: "countryIsoCode",
+                  keyword: value ?? undefined,
+                });
+              }}
+            />
+          }
+        />
+      ),
+      cell: ({ row }) => (
+        <img
+          src={`https://flagsapi.com/${row.getValue("countryIsoCode")}/flat/64.png`}
         />
       ),
     },
     {
-      id: "address",
-      accessorKey: "address",
-      header: () => <DefaultColumnHeader title="Address" />,
+      id: "actions",
+      cell: ({ row }) => {
+        const id = row.original.id;
+        const status = row.original.statusType;
+
+        const menuItems = [
+          {
+            handlerName: "Edit",
+            handler: () => console.log(id, "edit"),
+          },
+          {
+            handlerName: "Profile",
+            handler: () => console.log(id, "profile"),
+          },
+        ];
+
+        if (status === "PENDING") {
+          menuItems.push({
+            handlerName: "Approve",
+            handler: () =>
+              handleOpenProjectConfirmModal(id, row.original.title, {
+                type: "approving",
+              }),
+          });
+        } else if (status === "APPROVED") {
+          menuItems.push({
+            handlerName: "Halt",
+            handler: () =>
+              handleOpenProjectConfirmModal(id, row.original.title, {
+                type: "halting",
+              }),
+          });
+        }
+
+        if (status !== "DELETED") {
+          menuItems.push({
+            handlerName: "Delete",
+            handler: () => handleOpenProjectsDeleteModal(),
+          });
+        }
+
+        return <ActionsMenu rowId={id} actionItems={menuItems} />;
+      },
+      enableHiding: false,
+      size: 20,
     },
   ];
+
+  const handleOpenProjectsDeleteModal = () => {
+    const selectedCharities = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original);
+    const charityNames = selectedCharities
+      .map((project) => project.title)
+      .join(", ");
+
+    openDeleteProjectModal(
+      selectedCharities.map((charity) => charity.id),
+      `Are you sure you want to delete the following projects: ${charityNames}?`,
+    );
+  };
+
+  const handleOpenProjectConfirmModal = (
+    id: string,
+    name: string,
+    params: { type: "halting" | "approving" },
+  ) => {
+    if (params.type == "halting") {
+      openConfirmProjectModal(
+        id,
+        `Are you sure you want to halt project ${name}?`,
+        params.type,
+      );
+    } else if (params.type === "approving") {
+      openConfirmProjectModal(
+        id,
+        `Are you sure you want to approve project ${name}?`,
+        params.type,
+      );
+    }
+  };
 
   const { table, goToPage, setPageSize, nextPage, previousPage } =
     useTable<Project>({
@@ -153,7 +331,7 @@ const ProjectTable = () => {
       totalPages: totalPages ?? 0,
       pageIndex: paginationData?.pageNumber ?? 0,
       paginationSize: paginationData?.pageSize ?? 10,
-      columns: charityColumns,
+      columns: projectsColumns,
       enablePagination: true,
       filter: { ...filterData },
       onPaginationChange: updatePaginationParams,
@@ -178,7 +356,7 @@ const ProjectTable = () => {
           table={table}
           loading={isLoading}
           refetch={ProjectsAPI.fetchAllProjects}
-          // onSelectedRowsDelete={() => console.log('hi')}
+          onSelectedRowsDelete={handleOpenProjectsDeleteModal}
         />
       </div>
       <div className="mt-auto">
@@ -192,6 +370,69 @@ const ProjectTable = () => {
           previousPage={previousPage}
         />
       </div>
+
+      <ConfirmModal
+        isLoading={isLoading}
+        isOpen={isConfirmProjectModalOpen}
+        onClose={closeConfirmProjectModal}
+        onConfirm={() =>
+          confirmProjectType == "halting"
+            ? ProjectsAPI.haltProject(
+                confirmProjectId ?? "",
+                () =>
+                  toast.success("Project halted successfully!", {
+                    position: "bottom-right",
+                  }),
+                () =>
+                  toast.error(`Failed to halt project`, {
+                    position: "bottom-right",
+                  }),
+                closeConfirmProjectModal,
+              )
+            : ProjectsAPI.approveProject(
+                Array.isArray(confirmProjectId)
+                  ? confirmProjectId[0]
+                  : (confirmProjectId ?? ""),
+                () =>
+                  toast.success("Project approved successfully!", {
+                    position: "bottom-right",
+                  }),
+                () =>
+                  toast.error(`Failed to approve project`, {
+                    position: "bottom-right",
+                  }),
+                closeConfirmProjectModal,
+              )
+        }
+        title={
+          confirmProjectType == "halting"
+            ? "Halting Project"
+            : "Approving Project"
+        }
+        message={confirmProjectModalTitle}
+      />
+
+      <DeleteModal
+        isLoading={isLoading}
+        isOpen={isDeleteProjectModalOpen}
+        onClose={closeDeleteProjectModal}
+        onDelete={() =>
+          ProjectsAPI.deleteProject(
+            deleteProjectId ?? [],
+            () =>
+              toast.success("Project deleted successfully!", {
+                position: "bottom-right",
+              }),
+            () =>
+              toast.error(`Failed to delete project`, {
+                position: "bottom-right",
+              }),
+            closeDeleteProjectModal,
+          )
+        }
+        title="Delete Project"
+        message={deleteProjectModalTitle}
+      />
 
       <ToastContainer />
     </div>

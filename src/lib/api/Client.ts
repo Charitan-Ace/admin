@@ -55,8 +55,9 @@ export default class APIClient {
     options?: RequestInit & {
       params?: Record<string, unknown>;
       headers?: Record<string, string>;
+      returnHeaders?: boolean;
     },
-  ): Promise<T> {
+  ): Promise<T | { data: T; headers: Record<string, string> }> {
     const url = new URL(path, this.baseURL);
     const requestOptions = this.getRequestOptions(options);
 
@@ -79,6 +80,15 @@ export default class APIClient {
     }
 
     const data = await response.json();
+
+    if (options?.returnHeaders) {
+      const headers: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+      return { data: data as T, headers };
+    }
+
     return data as T;
   }
 
