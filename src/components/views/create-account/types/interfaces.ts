@@ -9,3 +9,16 @@ export interface CreateAccountFormFields {
   image: FileList;
   video?: FileList;
 }
+
+export interface DonorCreateSchema {
+  firstName?: string;
+  lastName?: string;
+  address?: string;
+}
+
+export interface CreateDonorData {
+  email: string;
+  password: string;
+  profile: DonorCreateSchema
+  
+}

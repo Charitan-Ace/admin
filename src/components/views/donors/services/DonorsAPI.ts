@@ -1,6 +1,8 @@
 import { apiClient } from "@/lib/api/Client";
 import { DonorGetResponse } from "./interfaces";
 import donorStore from "../store/createDonorStore";
+import { CreateAccountFormData } from "../../create-account/schemas/createAccountSchema";
+import { CreateAccountFormFields, CreateDonorData } from "../../create-account/types/interfaces";
 
 class DonorsAPI {
   static async fetchAllDonors() {
@@ -28,6 +30,40 @@ class DonorsAPI {
         );
     } finally {
       donorStore.getState().setLoading(false);
+    }
+  }
+
+  static async fetchDonorById(donorId: string) {
+    try {
+      const  data  = await apiClient.get<DonorGetResponse>(
+        `/api/profile/donor/info?id=${donorId}`
+      );
+      console.log('API Response:', data); // Add logging to debug
+      return data;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Failed to fetch donor");
+    }
+  }
+
+  static async createAccount(data: CreateDonorData) {
+
+    try {
+        const requestData = {
+            ...data,
+            role: "DONOR",
+            
+          };
+          console.log(requestData);
+      const response = await apiClient.post<CreateDonorData>("/api/admin/auth/create", {
+        body: JSON.stringify(requestData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    
+      return response;
+    } catch (e) {
+      console.log(e);
     }
   }
 }
