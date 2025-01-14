@@ -7,34 +7,46 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FormDropdownProps } from "./interfaces";
-import { FieldValues } from "react-hook-form";
+import { FieldValues, Controller } from "react-hook-form";
 
 const FormDropdown = <T extends FieldValues>({
-  id,
+  name,
   label,
   error,
-  register,
+  control,
   options,
   disabled = false,
   vSpacing = 2,
   className = "",
-}: FormDropdownProps<T>) => (
-  <div className={`space-y-${vSpacing} ${className}`}>
-    <Label htmlFor={id}>{label}</Label>
-    <Select {...register(id)} disabled={disabled}>
-      <SelectTrigger>
-        <SelectValue placeholder={`Select ${label}`} />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option, index) => (
-          <SelectItem key={index} value={option}>
-            {option}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-    {error && <p className="text-red-500 text-sm">{error}</p>}
-  </div>
-);
+}: FormDropdownProps<T>) => {
+  return (
+    <div className={`space-y-${vSpacing} ${className}`}>
+      <Label htmlFor={name}>{label}</Label>
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => (
+          <Select
+            onValueChange={field.onChange}
+            value={field.value}
+            disabled={disabled}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={`Select ${label}`} />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((option, index) => (
+                <SelectItem key={index} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+    </div>
+  );
+};
 
 export default FormDropdown;

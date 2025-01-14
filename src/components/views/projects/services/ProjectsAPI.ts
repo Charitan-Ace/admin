@@ -11,14 +11,10 @@ class ProjectsAPI {
       const pageNo = (projectStore.getState().filterData?.pageNo ?? 0) + 1;
       const pageSize = projectStore.getState().filterData?.pageSize ?? 10;
 
-      console.log(projectStore.getState().filterData);
-
       const queryParams = {
         page: pageNo,
         size: pageSize,
       };
-
-      console.log(projectStore.getState().filterData);
 
       const requestBody: Record<string, unknown> = {};
       if (projectStore.getState().filterData?.filter) {
@@ -115,7 +111,6 @@ class ProjectsAPI {
     onFailure: () => void,
     onFinish: () => void,
   ): Promise<Project | undefined> {
-    projectStore.getState().setLoading(true);
     try {
       const response = await apiClient.get<Project>(`/project/${projectId}`);
       onSuccess();
@@ -126,7 +121,6 @@ class ProjectsAPI {
       throw error;
     } finally {
       onFinish();
-      projectStore.getState().setLoading(false);
     }
   }
 

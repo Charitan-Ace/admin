@@ -1,25 +1,26 @@
 import { Navigate, useLocation } from "react-router";
 import { useEffect, useState } from "react";
-import { apiClient } from "@/lib/api/Client";
-import { ProtectedRouteProps } from "./interfaces";
+import { useAuthStore } from "./stores/useAuthStore";
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { isAuthenticated, checkAuth } = useAuthStore();
   const location = useLocation();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const authStatus = await apiClient.auth.authenticated();
-        setIsAuthenticated(authStatus);
-      } finally {
-        setLoading(false);
-      }
+    const authenticate = async () => {
+      await checkAuth();
+      setLoading(false);
     };
 
-    checkAuth();
-  }, []);
+    if (isAuthenticated === null) {
+      authenticate();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated, checkAuth]);
 
   if (loading) {
     return <div>Loading...</div>;

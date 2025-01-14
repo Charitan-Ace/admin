@@ -7,9 +7,6 @@ import DonorsTable from "./components/views/donors/DonorTable";
 import CharitiesTable from "./components/views/charities/CharitiesView";
 import StatisticsDashboard from "./components/views/statistics/StatisticsView";
 import UserDetailPage from "./components/views/donors-detail/UserDetails";
-import { CreateAccountForm } from "./components/views/create-account/CreateAccountModal";
-import CreateAccountView from "./components/views/create-account/CreateAccountView";
-import CharitiesDetailPage from "./components/views/charities-detail/CharitiesDetails";
 
 const App = () => {
   return (
@@ -70,7 +67,7 @@ const App = () => {
                 <UserDetailPage />
               </ProtectedRoute>
             }
-          /> 
+          />
         </Route>
       </Routes>
     </Router>

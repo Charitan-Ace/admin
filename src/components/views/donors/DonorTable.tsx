@@ -20,12 +20,10 @@ import { BookImage } from "lucide-react";
 import useModal from "@/components/reusable/modal/generic/hooks/useModal";
 import { CreateAccountForm } from "@/components/views/create-account/CreateAccountForm";
 import { toast } from "react-toastify";
-import { CreateAccountFormFields } from "@/components/views/create-account/types/interfaces";
 import { CreateAccountFormData } from "../create-account/schemas/createAccountSchema";
 import { useNavigate } from "react-router";
 import { apiClient } from "@/lib/api/Client.ts";
 import AssetsService from "@/lib/api/services/AssetsService.ts";
-
 
 const DonorsTable = () => {
   const [loading, setLoading] = useState(false);
@@ -120,7 +118,7 @@ const DonorsTable = () => {
     closeModal: closeCreateAccountModal,
   } = useModal(false);
 
-  const charityColumns: ColumnDef<Donor>[] = [
+  const donorColumns: ColumnDef<Donor>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -250,8 +248,8 @@ const DonorsTable = () => {
       //   );
       // },
       cell: ({ row }) => (
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="icon"
           onClick={() => navigate(`/donor/${row.original.userId}`)}
         >
@@ -283,7 +281,9 @@ const DonorsTable = () => {
           <h1 className="text-xl font-bold mb-4">Donors Table</h1>
           <Button
             variant="outline"
-            onClick={() => openCreateAccountModal(undefined, "Create New Donor")}
+            onClick={() =>
+              openCreateAccountModal(undefined, "Create New Donor")
+            }
           >
             Register New Donor
           </Button>

@@ -8,7 +8,6 @@ import { createAccountSchema } from "@/components/views/create-account/schemas/c
 import { CreateAccountFormFields } from "./types/interfaces";
 import FormInput from "@/components/reusable/form/input/FormInput";
 import GenericModal from "@/components/reusable/modal/generic/GenericModal";
-import { DonorsAPI } from "../donors/services/DonorsAPI.ts";
 
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -119,7 +118,8 @@ export function CreateAccountForm({
       bodyContent={
         <div className="max-h-[60vh] overflow-y-auto pr-4">
           <p className="text-sm text-gray-600 mb-4">
-            Please fill in your details to create a new account.
+            Please fill in details to create a new account. User will receive
+            email with them.
           </p>
           <Form {...form}>
             <form className="space-y-8" onSubmit={form.handleSubmit(onSubmitWrapper)}>
