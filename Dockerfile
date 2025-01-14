@@ -4,6 +4,8 @@
 FROM node:20-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 RUN corepack enable
 COPY . /app
 WORKDIR /app
@@ -13,5 +15,5 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run build
 
 FROM joseluisq/static-web-server:2
-COPY --from=build /app/dist /public
-CMD [ "static-web-server" ]
+COPY --from=build /app/dist /app/public
+WORKDIR /app
