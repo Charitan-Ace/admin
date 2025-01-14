@@ -8,8 +8,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apiClient } from "@/lib/api/Client";
 import { useNavigate } from "react-router";
+import useModal from "@/components/reusable/modal/generic/hooks/useModal";
+import AdminCreateModal from "./child-components/admin-create-modal/AdminCreateModal";
+import { useState } from "react";
+import { CreateAdminFormData } from "./child-components/admin-create-modal/interfaces";
+import { toast, ToastContainer } from "react-toastify";
+import { HeaderAPI } from "./services/HeaderViewAPI";
 
 const HeaderView = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -20,10 +27,37 @@ const HeaderView = () => {
     }
   };
 
+  const {
+    isOpen: isCreateAdminModalOpen,
+    // title: createAdminModalTitle,
+    openModal: openCreateAdminModal,
+    closeModal: closeCreateAdminModal,
+  } = useModal(false);
+
+  const handleRegisterAdmin = async (
+    data: Omit<CreateAdminFormData, "confirmPassword">,
+  ) => {
+    setIsLoading(true);
+    try {
+      await HeaderAPI.registerNewAdmin(data);
+      toast.success("Admin registered successfully!", {
+        position: "bottom-right",
+      });
+    } catch (error) {
+      toast.error(`Failed to register admin: ${error}`, {
+        position: "bottom-right",
+      });
+    } finally {
+      closeCreateAdminModal();
+      setIsLoading(false);
+    }
+  };
+
   return (
     <header className="flex items-center justify-between bg-gray-100 px-6 py-2">
       <div className="flex items-center space-x-2">
         <span className="text-lg font-bold">Admin Dashboard</span>
+        <ToastContainer />
       </div>
 
       <nav className="flex items-center space-x-4">
@@ -43,15 +77,21 @@ const HeaderView = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center space-x-2 focus:outline-none">
-              <img
-                src="/path-to-profile.png"
-                alt="Admin Profile"
-                className="h-8 w-8 rounded-full"
-              />
               <span className="hidden md:block">Admin</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="mt-3 space-y-1 p-1">
+            <DropdownMenuItem asChild>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() =>
+                  openCreateAdminModal(undefined, "Create New Admin")
+                }
+              >
+                Create New Admin
+              </Button>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Button
                 variant="outline"
@@ -64,6 +104,12 @@ const HeaderView = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
+      <AdminCreateModal
+        isOpen={isCreateAdminModalOpen}
+        onClose={closeCreateAdminModal}
+        onSubmit={handleRegisterAdmin}
+        loading={isLoading}
+      />
     </header>
   );
 };

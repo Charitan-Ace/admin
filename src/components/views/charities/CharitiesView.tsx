@@ -186,24 +186,6 @@ const CharitiesTable = () => {
       refetch: CharitiesAPI.fetchAllCharities,
     });
 
-  // const handleCharitiesDelete = () => {
-  //   const selectedCharities = table.getSelectedRowModel().rows.map((row) => row.original);
-  //   const charityNames = selectedCharities.map((charity) => charity.companyName).join(", ");
-
-  //   openDeleteModal(
-  //     selectedCharities.map((charity) => charity.userId),
-  //     `Are you sure you want to delete the following charities: ${charityNames}?`
-  //   );
-  // };
-
-  // const {
-  //   id: deleteCharityId,
-  //   isOpen: isDeleteModalOpen,
-  //   title: deleteTitle,
-  //   openModal: openDeleteModal,
-  //   closeModal: closeDeleteModal,
-  // } = useModal();
-
   const handleRegisterCharity = async (data: CreateCharityFormData) => {
     try {
       await CharitiesAPI.registerNewCharity({ ...data });

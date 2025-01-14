@@ -73,7 +73,7 @@ export default class AuthService extends BaseService {
   }
 
   async logout() {
-    return await this.client.get<boolean>("/api/auth/logout");
+    return await this.client.post<boolean>("/api/auth/logout");
   }
 
   async authenticated() {
