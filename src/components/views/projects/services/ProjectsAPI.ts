@@ -181,10 +181,18 @@ class ProjectsAPI {
     try {
       if (Array.isArray(projectId)) {
         await Promise.all(
-          projectId.map((id) => apiClient.post<Project>(`/project/halt/${id}`)),
+          projectId.map((id) =>
+            apiClient.post<Project>(`/api/admin/project/halt/${id}`),
+          ),
         );
       } else {
-        await apiClient.post<Project>(`/project/halt/${projectId}`);
+        await apiClient.post<Project>(`/api/admin/project/halt/${projectId}`, {
+          body: JSON.stringify({
+            charity: "charity reason",
+            donor: "donor reason",
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
       }
       onSuccess();
     } catch (error) {

@@ -7,6 +7,7 @@ import { createCharitySchema } from "./form-schemas/CreateCharitySchema";
 import { CreateCharityFormData, CharityFormProps } from "./interfaces";
 import FormDropdown from "@/components/reusable/form/dropdown/FormDropdown";
 import { OrganizationType } from "../../services/interfaces";
+import { mapEnumToOptions } from "@/lib/utils/helpers/mapEnumToOptions";
 
 const CreateCharityFormModal = ({
   isOpen,
@@ -89,7 +90,7 @@ const CreateCharityFormModal = ({
               error={errors.organizationType?.message}
               control={control}
               disabled={loading}
-              options={Object.values(OrganizationType)}
+              options={mapEnumToOptions(OrganizationType)}
             />
           </form>
         </>

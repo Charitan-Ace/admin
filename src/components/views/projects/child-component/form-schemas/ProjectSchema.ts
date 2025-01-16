@@ -18,6 +18,11 @@ const ProjectSchema = yup.object().shape({
     .string()
     .length(2, "Country ISO code must be exactly 2 characters")
     .required("Country ISO code is required"),
+  startTime: yup.date().required("Start date is required"),
+  endTime: yup
+    .date()
+    .required("End date is required")
+    .min(yup.ref("startTime"), "End date must be later than start date"),
 });
 
 export { ProjectSchema };

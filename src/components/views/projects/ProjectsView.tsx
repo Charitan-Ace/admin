@@ -443,19 +443,19 @@ const ProjectTable = () => {
       />
 
       <ProjectFormModal
-        projectId={
+        projectData={
           projectModalType === "edit"
             ? Array.isArray(projectModalId)
-              ? projectModalId[0]
-              : projectModalId
-            : ""
+              ? data?.filter((item) => item.id === projectModalId[0])[0]
+              : data?.filter((item) => item.id === projectModalId)[0]
+            : undefined
         }
         title={projectModalTitle}
         loading={isLoading}
         isOpen={isProjectModalOpen}
         onClose={closeProjectModal}
         onSubmit={(data) =>
-          projectModalId === ""
+          projectModalId === "" || projectModalId === undefined
             ? ProjectsAPI.createProject(
                 data,
                 () =>

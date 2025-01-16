@@ -25,24 +25,27 @@ const FormDropdown = <T extends FieldValues>({
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
-          <Select
-            onValueChange={field.onChange}
-            value={field.value}
-            disabled={disabled}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={`Select ${label}`} />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((option, index) => (
-                <SelectItem key={index} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        render={({ field }) => {
+          console.log(label, field.value);
+          return (
+            <Select
+              onValueChange={field.onChange}
+              value={field.value}
+              disabled={disabled}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={`Select ${label}`} />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((option, index) => (
+                  <SelectItem key={index} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        }}
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
     </div>

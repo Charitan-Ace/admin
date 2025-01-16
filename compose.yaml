@@ -3,8 +3,8 @@ services:
     build:
       context: .
       args:
-        - VITE_API_URL=http://localhost:8080
+        - VITE_API_URL=https://gateway.tail03350e.ts.net
     container_name: admin
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "5173:80"

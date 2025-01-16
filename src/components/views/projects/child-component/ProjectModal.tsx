@@ -6,21 +6,25 @@ import FormDropdown from "@/components/reusable/form/dropdown/FormDropdown";
 import GenericModal from "@/components/reusable/modal/generic/GenericModal";
 import { ProjectSchema } from "./form-schemas/ProjectSchema";
 import { Country, Project, ProjectCategoryType } from "../services/interfaces";
-import { useEffect, useState } from "react";
-import { ProjectsAPI } from "../services/ProjectsAPI";
+import { useEffect } from "react";
+import FormDatePicker from "@/components/reusable/form/datepicker/FormDatepicker";
+import { mapEnumToOptions } from "@/lib/utils/helpers/mapEnumToOptions";
 
 type CreateProjectFormData = Omit<
   Project,
-  "id" | "mediaDtoList" | "startTime" | "endTime" | "charityId" | "statusType"
->;
+  "id" | "startTime" | "endTime" | "mediaDtoList" | "charityId" | "statusType"
+> & {
+  startTime: string;
+  endTime: string;
+};
 
 interface CreateProjectFormProps {
-  projectId?: string;
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: CreateProjectFormData) => void;
   loading: boolean;
   title: string;
+  projectData?: Project;
 }
 
 const ProjectFormModal = ({
@@ -29,7 +33,7 @@ const ProjectFormModal = ({
   onClose,
   onSubmit,
   loading,
-  projectId,
+  projectData, // Accept projectData prop
 }: CreateProjectFormProps) => {
   const {
     register,
@@ -39,52 +43,42 @@ const ProjectFormModal = ({
     reset,
   } = useForm<CreateProjectFormData>({
     resolver: yupResolver(ProjectSchema),
-    defaultValues: {},
+    defaultValues: projectData
+      ? {
+          title: projectData.title || "",
+          description: projectData.description || "",
+          goal: projectData.goal || 0,
+          categoryType: projectData.categoryType || "",
+          countryIsoCode: projectData.countryIsoCode || "",
+          startTime: projectData.startTime
+            ? new Date(projectData.startTime * 1000).toISOString().split("T")[0]
+            : "",
+          endTime: projectData.endTime
+            ? new Date(projectData.endTime * 1000).toISOString().split("T")[0]
+            : "",
+        }
+      : {},
   });
 
-  const [projectData, setProjectData] = useState<Project | null>(null);
-  const [isFetching, setIsFetching] = useState(false);
-
   useEffect(() => {
-    if (isOpen && projectId !== "") {
-      setIsFetching(true);
-      async function fetchData() {
-        try {
-          const data = await ProjectsAPI.getProjectById(
-            projectId ?? "",
-            () => {},
-            () => {},
-            () => setIsFetching(false),
-          );
-          setProjectData(data || null);
-        } finally {
-          setIsFetching(false);
-        }
-      }
-
-      fetchData();
-    }
-  }, [isOpen, projectId]);
-
-  useEffect(() => {
-    if (projectData && projectId !== "") {
+    if (projectData && isOpen) {
       reset({
         title: projectData.title || "",
         description: projectData.description || "",
         goal: projectData.goal || 0,
         categoryType: projectData.categoryType || "",
         countryIsoCode: projectData.countryIsoCode || "",
+        startTime: projectData.startTime
+          ? new Date(projectData.startTime * 1000).toISOString().split("T")[0]
+          : "",
+        endTime: projectData.endTime
+          ? new Date(projectData.endTime * 1000).toISOString().split("T")[0]
+          : "",
       });
-    } else if (projectId === "") {
-      reset({
-        title: undefined,
-        description: undefined,
-        goal: undefined,
-        categoryType: undefined,
-        countryIsoCode: undefined,
-      });
+    } else {
+      reset({});
     }
-  }, [projectData, reset, projectId, isOpen]);
+  }, [projectData, reset, isOpen]);
 
   return (
     <GenericModal
@@ -93,52 +87,62 @@ const ProjectFormModal = ({
       onClose={onClose}
       bodyContent={
         <>
-          {isFetching ? (
-            <p>Loading project data...</p>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <FormInput<CreateProjectFormData>
-                id="title"
-                label="Title"
-                error={errors.title?.message}
-                register={register}
-                disabled={loading}
-                type="text"
-              />
-              <FormInput<CreateProjectFormData>
-                id="description"
-                label="Description"
-                error={errors.description?.message}
-                register={register}
-                disabled={loading}
-                type="text"
-              />
-              <FormInput<CreateProjectFormData>
-                id="goal"
-                label="Goal"
-                error={errors.goal?.message}
-                register={register}
-                disabled={loading}
-                type="number"
-              />
-              <FormDropdown<CreateProjectFormData>
-                name="categoryType"
-                label="Category Type"
-                error={errors.categoryType?.message}
-                control={control}
-                disabled={loading}
-                options={Object.values(ProjectCategoryType)}
-              />
-              <FormDropdown<CreateProjectFormData>
-                name="countryIsoCode"
-                label="Country ISO Code"
-                error={errors.countryIsoCode?.message}
-                control={control}
-                disabled={loading}
-                options={Object.keys(Country)}
-              />
-            </form>
-          )}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <FormInput<CreateProjectFormData>
+              id="title"
+              label="Title"
+              error={errors.title?.message}
+              register={register}
+              disabled={loading}
+              type="text"
+            />
+            <FormInput<CreateProjectFormData>
+              id="description"
+              label="Description"
+              error={errors.description?.message}
+              register={register}
+              disabled={loading}
+              type="text"
+            />
+            <FormInput<CreateProjectFormData>
+              id="goal"
+              label="Goal"
+              error={errors.goal?.message}
+              register={register}
+              disabled={loading}
+              type="number"
+            />
+            <FormDatePicker<CreateProjectFormData>
+              name="startTime"
+              label="Start Date"
+              error={errors.startTime?.message}
+              control={control}
+              disabled={loading}
+            />
+            <FormDatePicker<CreateProjectFormData>
+              name="endTime"
+              label="End Date"
+              error={errors.endTime?.message}
+              control={control}
+              disabled={loading}
+            />
+            <FormDropdown<CreateProjectFormData>
+              name="categoryType"
+              label="Category Type"
+              error={errors.categoryType?.message}
+              control={control}
+              disabled={loading}
+              options={mapEnumToOptions(ProjectCategoryType)}
+            />
+            <FormDropdown<CreateProjectFormData>
+              name="countryIsoCode"
+              label="Country"
+              error={errors.countryIsoCode?.message}
+              control={control}
+              disabled={loading}
+              options={mapEnumToOptions(Country)}
+            />
+          </form>
         </>
       }
       footerContent={
@@ -149,7 +153,7 @@ const ProjectFormModal = ({
           <Button
             variant="success"
             onClick={handleSubmit(onSubmit)}
-            loading={loading || isFetching}
+            loading={loading}
             disabled={Object.keys(errors).length > 0}
           >
             {title} Project
